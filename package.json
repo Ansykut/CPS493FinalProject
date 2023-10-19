@@ -1,0 +1,15 @@
+{
+  "name": "fall-2023",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">\r <b>CPS493 Fall 2023</b> <br>\r   <img src=\"https://github.com/Ansykut/Fall-2023/assets/101211415/88b79fb6-9c2a-4189-8b1e-f83e3a2f100c\" alt=\"Selfie\" />\r </p>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "font-awesome": "^4.7.0"
+  }
+}

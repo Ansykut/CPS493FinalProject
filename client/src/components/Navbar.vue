@@ -1,0 +1,123 @@
+<script setup lang="ts">
+import { ref, provide } from 'vue';
+import { RouterLink } from 'vue-router'
+
+const isActive = ref(false);
+const isDropdownActive = ref(false);
+const isLoggedIn = ref(false);
+const loggedInUser = ref('');  // To store the name of the logged-in user 
+const loggedInUserPic = ref('');  // To store the path to the logged-in user's profile picture
+provide('loggedInUser', loggedInUser);
+provide('isLoggedIn', isLoggedIn); // Provide isLoggedIn for child components
+</script>
+
+<template>
+  <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <RouterLink class="navbar-item" to="/">
+        <img alt="Example logo" src="@/assets/logo.svg" width="28" height="28" />
+      </RouterLink>
+
+      <a role="button" class="navbar-burger burger" :class="{ 'is-active': isActive }" @click="isActive = !isActive"
+        aria-label="menu" aria-expanded="false" data-target="navMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navMenu" class="navbar-menu" :class="{ 'is-active': isActive }">
+      <div class="navbar-start">
+        <RouterLink class="navbar-item" to="/my-activity">
+          <span class="icon mr-2"><i class="fas fa-user"></i></span>
+          My Activity
+        </RouterLink>
+        <RouterLink class="navbar-item" to="/statistics">
+          <span class="icon mr-2"><i class="fas fa-chart-line"></i></span>
+          Statistics
+        </RouterLink>
+        <RouterLink class="navbar-item" to="/friends-activity">
+          <span class="icon mr-2"><i class="fas fa-users"></i></span>
+          Friends Activity
+        </RouterLink>
+        <RouterLink class="navbar-item" to="/people-search">
+          <span class="icon mr-2"><i class="fas fa-search"></i></span>
+          People Search
+        </RouterLink>
+        <!-- Display Admin dropdown only if Andrew Sykut is logged in -->
+        <div v-if="isLoggedIn && loggedInUser === 'Andrew Sykut'" class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            <span class="icon mr-2"><i class="fas fa-cogs"></i></span>
+            Admin
+          </a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item">Option 1</a>
+            <a class="navbar-item">Option 2</a>
+            <a class="navbar-item">Option 3</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a v-if="!isLoggedIn" class="button is-primary">
+              <strong>Sign up</strong>
+            </a>
+            <span v-if="isLoggedIn" class="mr-3">
+              <span class="icon mr-4">
+                <img :src="loggedInUserPic" alt="Profile Picture" width="28" height="28" />
+              </span>
+              {{ loggedInUser }}
+            </span>
+            <div v-if="!isLoggedIn" class="navbar-item has-dropdown" :class="{ 'is-active': isDropdownActive }">
+              <a class="button is-light login-button" @click="isDropdownActive = !isDropdownActive">
+                Log in <span class="icon ml-2"><i class="fas fa-angle-down"></i></span>
+              </a>
+              <div class="navbar-dropdown">
+                <a class="navbar-item"
+                  @click="isLoggedIn = true; loggedInUser = 'Andrew Sykut'; loggedInUserPic = '@/assets/andrew_sykut.svg'; isDropdownActive = false;">
+                  Andrew Sykut
+                </a>
+                <a class="navbar-item"
+                  @click="isLoggedIn = true; loggedInUser = 'Sarah Kell'; loggedInUserPic = '@/path_to_sarah_profile_pic.jpg'; isDropdownActive = false;">
+                  Sarah Kell
+                </a>
+                <a class="navbar-item"
+                  @click="isLoggedIn = true; loggedInUser = 'Jake Gerth'; loggedInUserPic = '@/path_to_jake_profile_pic.jpg'; isDropdownActive = false;">
+                  Jake Gerth
+                </a>
+              </div>
+            </div>
+            <a v-if="isLoggedIn" class="button is-light login-button"
+              @click="isLoggedIn = false; loggedInUser = ''; loggedInUserPic = '';">
+              Log out
+            </a>
+            <a class="button is-info" href="https://X.com" target="_blank">
+              <span class="icon mr-2">
+                <i class="fab fa-twitter"></i>
+              </span>
+              Tweet
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</template>
+
+<style scoped>
+router-link-active {
+  font-weight: bold;
+  border-bottom: 2px solid #3273dc;
+}
+
+.navbar.is-dark {
+  background-color: #363636;
+}
+
+.login-button:hover {
+  background-color: #e8e8e8;
+  color: #363636;
+}
+</style>
