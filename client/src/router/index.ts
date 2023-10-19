@@ -1,8 +1,8 @@
-import { createRouter, createWebHashHistory, type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import StatisticsView from '../views/StatisticsView.vue'
-import MyActivityView from '../views/MyActivityView.vue' // Importing the MyActivityView
-import LoginView from '../views/LoginView.vue'
+import { createRouter, createWebHashHistory, type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import StatisticsView from '../views/StatisticsView.vue';
+import LoginView from '../views/LoginView.vue';
+import MyActivityView from '../views/MyActivityView.vue'
 import { getSession } from '@/model/session';
 
 const router = createRouter({

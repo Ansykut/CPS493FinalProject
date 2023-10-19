@@ -100,58 +100,69 @@
     </div>
   </div>
 </template>
+  
+<script setup lang="ts">
+import { ref } from 'vue';
 
-<script>
-export default {
-  data() {
-    return {
-      isModalActive: false,
-      currentWorkout: {
-        id: null,
-        type: 'Running',
-        distance: '',
-        duration: '',
-        location: '',
-        photo: null,
-      },
-      workouts: [],
-      username: 'John Doe' // replace with actual logic to fetch the logged-in user's name
-    };
-  },
-  methods: {
-    openModal() {
-      this.isModalActive = true;
-    },
-    closeModal() {
-      this.isModalActive = false;
-      this.resetCurrentWorkout();
-    },
-    resetCurrentWorkout() {
-      this.currentWorkout = {
-        id: null,
-        type: 'Running',
-        distance: '',
-        duration: '',
-        location: '',
-        photo: null,
-      };
-    },
-    handlePhotoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.currentWorkout.photo = URL.createObjectURL(file);
-      }
-    },
-    saveWorkout() {
-      this.currentWorkout.id = Date.now();
-      this.workouts.push({ ...this.currentWorkout });
-      this.closeModal();
-    },
-    deleteWorkout(workoutId) {
-      this.workouts = this.workouts.filter(workout => workout.id !== workoutId);
-    },
-  },
-};
+interface Workout {
+  id: number;
+  type: string;
+  distance: string;
+  duration: string;
+  location: string;
+  photo: string | null;
+}
+
+const isModalActive = ref(false);
+const currentWorkout = ref<Workout>({
+  id: -1,
+  type: 'Running',
+  distance: '',
+  duration: '',
+  location: '',
+  photo: null,
+});
+const workouts = ref<Workout[]>([]);
+const username = ref('John Doe'); // replace with actual logic to fetch the logged-in user's name
+
+function openModal() {
+  isModalActive.value = true;
+}
+
+function closeModal() {
+  isModalActive.value = false;
+  resetCurrentWorkout();
+}
+
+function resetCurrentWorkout() {
+  currentWorkout.value = {
+    id: -1,
+    type: 'Running',
+    distance: '',
+    duration: '',
+    location: '',
+    photo: null,
+  };
+}
+
+function handlePhotoUpload(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    currentWorkout.value.photo = URL.createObjectURL(file);
+  }
+}
+
+function saveWorkout() {
+  currentWorkout.value.id = Date.now();
+  workouts.value.push({ ...currentWorkout.value });
+  closeModal();
+}
+
+function deleteWorkout(workoutId: number) {
+  if(workoutId == -1) return; // invalid workout id (should never happen
+  workouts.value = workouts.value.filter(workout => workout.id !== workoutId);
+}
 </script>
 
 <style scoped>
@@ -186,3 +197,4 @@ export default {
   margin-bottom: 1rem;
 }
 </style>
+  
