@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { ref, provide } from 'vue';
+import { ref, computed } from 'vue';
 import { RouterLink } from 'vue-router'
+import { getSession, useLogin } from '../model/session'
+import { type User, getUsers } from '../model/users'
+
+
+const session = getSession()
+const users = getUsers()
+
+const { login, logout } = useLogin()
+
+
 
 const isActive = ref(false);
 const isDropdownActive = ref(false);
-const isLoggedIn = ref(false);
-const loggedInUser = ref('');  // To store the name of the logged-in user 
-const loggedInUserPic = ref('');  // To store the path to the logged-in user's profile picture
-provide('loggedInUser', loggedInUser);
-provide('isLoggedIn', isLoggedIn); // Provide isLoggedIn for child components
+const isLoggedIn = computed(() => {
+  return session.user !== null;
+})
 </script>
 
 <template>
@@ -45,7 +53,7 @@ provide('isLoggedIn', isLoggedIn); // Provide isLoggedIn for child components
           People Search
         </RouterLink>
         <!-- Display Admin dropdown only if Andrew Sykut is logged in -->
-        <div v-if="isLoggedIn && loggedInUser === 'Andrew Sykut'" class="navbar-item has-dropdown is-hoverable">
+        <div v-if="isLoggedIn && session.user?.role == 'admin'" class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             <span class="icon mr-2"><i class="fas fa-cogs"></i></span>
             Admin
@@ -66,31 +74,22 @@ provide('isLoggedIn', isLoggedIn); // Provide isLoggedIn for child components
             </a>
             <span v-if="isLoggedIn" class="mr-3">
               <span class="icon mr-4">
-                <img :src="loggedInUserPic" alt="Profile Picture" width="28" height="28" />
+                <img :src="session.user?.image"  alt="Profile Picture" width="28" height="28" />
               </span>
-              {{ loggedInUser }}
+              {{ session.user?.firstName + " " + session.user?.lastName }}
             </span>
             <div v-if="!isLoggedIn" class="navbar-item has-dropdown" :class="{ 'is-active': isDropdownActive }">
               <a class="button is-light login-button" @click="isDropdownActive = !isDropdownActive">
                 Log in <span class="icon ml-2"><i class="fas fa-angle-down"></i></span>
               </a>
               <div class="navbar-dropdown">
-                <a class="navbar-item"
-                  @click="isLoggedIn = true; loggedInUser = 'Andrew Sykut'; loggedInUserPic = '@/assets/andrew_sykut.svg'; isDropdownActive = false;">
-                  Andrew Sykut
-                </a>
-                <a class="navbar-item"
-                  @click="isLoggedIn = true; loggedInUser = 'Sarah Kell'; loggedInUserPic = '@/path_to_sarah_profile_pic.jpg'; isDropdownActive = false;">
-                  Sarah Kell
-                </a>
-                <a class="navbar-item"
-                  @click="isLoggedIn = true; loggedInUser = 'Jake Gerth'; loggedInUserPic = '@/path_to_jake_profile_pic.jpg'; isDropdownActive = false;">
-                  Jake Gerth
-                </a>
+                <a class="navbar-item" v-for="user in users" @click="login(user.email, '')">
+                  {{ user.firstName + " " + user.lastName  }}
+                </a> 
               </div>
             </div>
             <a v-if="isLoggedIn" class="button is-light login-button"
-              @click="isLoggedIn = false; loggedInUser = ''; loggedInUserPic = '';">
+              @click="logout">
               Log out
             </a>
             <a class="button is-info" href="https://X.com" target="_blank">
@@ -119,5 +118,9 @@ router-link-active {
 .login-button:hover {
   background-color: #e8e8e8;
   color: #363636;
+}
+.navbar-dropdown {
+  max-height: 13em;
+  overflow-y: scroll;
 }
 </style>
