@@ -17,21 +17,25 @@
     </div>
 
     <!-- Display Workouts -->
-    <div v-if="workouts.length">
-      <h2 class="title is-4 mt-5">My Workouts ({{ username }})</h2>
-      <div class="columns is-centered">
-        <div class="column is-half">
-          <div v-for="workout in workouts" :key="workout.id" class="workout-box">
+<div v-if="workouts.length">
+  <h2 class="title is-4 mt-5">My Workouts</h2>
+  <div class="columns is-centered">
+    <div class="column is-half">
+      <div v-for="workout in workouts" :key="workout.id" class="workout-box">
+        <!-- Display Username and Profile Picture -->
+        <div class="user-details">
+          <img :src="session.user?.image" alt="Profile Picture" class="profile-pic">
+          <span class="user-activity-bold">{{ username }} went {{ workout.type.toLowerCase() }} at {{ workout.location }}</span> <!-- Updated class name -->
+        </div>
             <button class="delete is-small is-pulled-right" @click="deleteWorkout(workout.id)"></button>
-            <h3 class="title is-5">{{ workout.type }}</h3>
             <div class="columns">
               <!-- Workout information column -->
               <div class="column is-8">
                 <div class="distance-duration">
-                  <span class="distance">Distance (mi): {{ workout.distance }}</span>
-                  <span class="duration">Duration: {{ workout.duration }}</span>
+                  <div class="distance">Distance (mi): {{ workout.distance }}</div>
+                  <hr> <!-- Line separating distance and duration -->
+                  <div class="duration">Duration: {{ workout.duration }} mins</div>
                 </div>
-                <p><strong>Location:</strong> {{ workout.location }}</p>
               </div>
               <!-- Photo column -->
               <div v-if="workout.photo" class="column is-4">
@@ -73,9 +77,9 @@
             </div>
           </div>
           <div class="field">
-            <label class="label">Duration (in HH:MM format)</label>
+            <label class="label">Duration (in mins)</label> <!-- Updated label -->
             <div class="control">
-              <input class="input" type="text" v-model="currentWorkout.duration" placeholder="Enter duration...">
+              <input class="input" type="number" v-model="currentWorkout.duration" placeholder="Enter duration in minutes..."> <!-- Changed to number type and updated placeholder -->
             </div>
           </div>
           <div class="field">
@@ -100,9 +104,11 @@
     </div>
   </div>
 </template>
+
   
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { getSession } from '../model/session';
 
 interface Workout {
   id: number;
@@ -112,6 +118,11 @@ interface Workout {
   location: string;
   photo: string | null;
 }
+
+const session = getSession();
+const username = computed(() => {
+  return session.user ? session.user.firstName + " " + session.user.lastName : '';
+});
 
 const isModalActive = ref(false);
 const currentWorkout = ref<Workout>({
@@ -123,7 +134,7 @@ const currentWorkout = ref<Workout>({
   photo: null,
 });
 const workouts = ref<Workout[]>([]);
-const username = ref('John Doe'); // replace with actual logic to fetch the logged-in user's name
+
 
 function openModal() {
   isModalActive.value = true;
@@ -189,12 +200,37 @@ function deleteWorkout(workoutId: number) {
   margin-bottom: 1rem;
 }
 
-/* Styling for distance and duration */
 .distance-duration {
   display: flex;
-  gap: 2rem;
-  font-size: 1.2rem;
+  flex-direction: column; /* Changed to column for stacking Distance & Duration */
+  gap: 1rem; /* Adjusted gap value to separate Distance & Duration */
+  font-size: 1.4rem;
+  font-weight: bold;
   margin-bottom: 1rem;
+}
+
+/* Added styling for the line separating distance and duration */
+.distance-duration hr {
+  border: 0.5px solid #dbdbdb;
+  margin: 0.5rem 0;
+  width: 100%;
+}
+/* Styling for user details */
+.user-details {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.user-activity-bold { /* New class for bold and larger font size */
+  font-weight: bold;
+  font-size: 1.6rem; /* Adjust size as desired */
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
 </style>
   
