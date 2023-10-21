@@ -57,14 +57,14 @@ function getStats(dayFilterType:String): stats {
   const workouts = getWorkoutsByUserId(ourId) as Workout[];
   let filteredWorkouts = [];
   if(dayFilterType == "today")
-    filteredWorkouts = workouts.filter(workout => workoutByTodayFilterFunc);
+    filteredWorkouts = workouts.filter(workout => workout.dateDaysAgo == 0);
   else if(dayFilterType == "week")
-    filteredWorkouts = workouts.filter(workout => workoutByWeekFilterFunc);
+    filteredWorkouts = workouts.filter(workout => workout.dateDaysAgo <= 7);
   else if(dayFilterType == "all")
     filteredWorkouts = workouts;
   else
-    filteredWorkouts = workouts.filter(workout => workoutByTodayFilterFunc);
-  console.log(dayFilterType, filteredWorkouts)
+    filteredWorkouts = workouts.filter(workout => workout.dateDaysAgo == 0);
+  console.log(dayFilterType, filteredWorkouts, workouts)
 
   todaysStats = filteredWorkouts.reduce((acc, workout) => {
     acc.distance += workout.distance;
@@ -83,6 +83,10 @@ function getStats(dayFilterType:String): stats {
   return todaysStats;
 }
 
+const isEmptyStat = (stat: stats) => {
+  return stat.distance == 0 && stat.duration == 0 && stat.avgpace == 0 && stat.calories == 0;
+}
+
 
 </script>
 
@@ -92,9 +96,9 @@ function getStats(dayFilterType:String): stats {
       <div class="box is-small-hidden" />
     </div>
     <div class="column">
-      <SmallStatistic typeOfDisplay="today" :stats="getStats('today')"/>
-      <SmallStatistic typeOfDisplay="week" :stats="getStats('week')"/>
-      <SmallStatistic typeOfDisplay="all" :stats="getStats('all')"/>
+      <SmallStatistic v-if="!isEmptyStat(getStats('today'))" typeOfDisplay="today" :stats="getStats('today')"/>
+      <SmallStatistic v-if="!isEmptyStat(getStats('week'))" typeOfDisplay="week" :stats="getStats('week')"/>
+      <SmallStatistic v-if="!isEmptyStat(getStats('all'))" typeOfDisplay="all" :stats="getStats('all')"/>
     </div>
     <div class="column is-one-quarter">
       <div class="box is-small-hidden" />

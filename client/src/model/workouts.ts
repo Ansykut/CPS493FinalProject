@@ -21,7 +21,7 @@ const friendWorkouts = [
 ];
 */
 export interface Workout {
-  userId: number,
+  id: number,
   dateDaysAgo: number,
   type: string,
   distance: number,
@@ -53,10 +53,19 @@ export function addWorkout(workout: Workout) {
   Workouts.push(workout);
 }
 
+// remove workout by id
+export function removeWorkout(id: number) {
+  const index = Workouts.findIndex(workout => workout.id === id);
+  console.log("deleting activtity", index, "with id", id, "from", Workouts)
+  Workouts.splice(index, 1);
+}
+
 export function getWorkoutsByUserId(userId: number): Workout[] {
   
-  const workouts = Workouts.filter(workout => workout.userId % userId === 0)
-  console.log(workouts)
+  const workouts = Workouts.filter(workout => workout.id % userId === 0)
+  //console.log(workouts)
   //return no more than 3 workouts
+  // shuffle the workouts
+  workouts.sort(() => Math.random() - 0.5);
   return workouts.slice(0,6)
 }

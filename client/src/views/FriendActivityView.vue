@@ -6,11 +6,11 @@
     <h2 class="title is-4 mt-5">{{ username }}'s Friend's Workouts</h2>
     <div class="columns is-centered">
       <div class="column is-half">
-        <div v-for="workout in friendWorkouts" :key="workout?.userId" class="workout-box">
+        <div v-for="workout in friendWorkouts" :key="workout?.id" class="workout-box">
           <!-- Display Username and Profile Picture -->
           <div class="user-details">
-            <img :src="friendPhoto(workout?.userId)" alt="Profile Picture" class="profile-pic">
-            <span class="user-activity-bold">{{ friendFullName(workout?.userId) }} went {{ workout?.type.toLowerCase() }} at {{ workout?.location }}</span>
+            <img :src="friendPhoto(workout?.id)" alt="Profile Picture" class="profile-pic">
+            <span class="user-activity-bold">{{ friendFullName(workout?.id) }} went {{ workout?.type.toLowerCase() }} at {{ workout?.location }}</span>
           </div>
           <div class="columns">
             <!-- Workout information column -->

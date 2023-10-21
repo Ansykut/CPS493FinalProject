@@ -21,13 +21,14 @@
   <h2 class="title is-4 mt-5">My Workouts</h2>
   <div class="columns is-centered">
     <div class="column is-half">
-      <div v-for="workout in workouts" :key="workout.userId" class="workout-box">
+      <div v-for="workout in workouts" :key="workout.id" class="workout-box">
         <!-- Display Username and Profile Picture -->
         <div class="user-details">
           <img :src="session.user?.image" alt="Profile Picture" class="profile-pic">
           <span class="user-activity-bold">{{ username }} went {{ workout.type.toLowerCase() }} at {{ workout.location }}</span> <!-- Updated class name -->
+          <span class="small">{{ daysAgoToDateString(workout.dateDaysAgo) }}</span>
         </div>
-            <button class="delete is-small is-pulled-right" @click="deleteWorkout(workout.userId)"></button>
+            <button class="delete is-small is-pulled-right" @click="_removeWorkout(workout.id)"></button>
             <div class="columns">
               <!-- Workout information column -->
               <div class="column is-8">
@@ -109,7 +110,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { getSession } from '../model/session';
-import { getWorkoutsByUserId, type Workout, addWorkout } from "@/model/workouts";
+import { getWorkoutsByUserId, type Workout, addWorkout, removeWorkout } from "@/model/workouts";
+
+const daysAgoToDateString = (daysAgo: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  return date.toLocaleDateString();
+};
 
 const session = getSession();
 const username = computed(() => {
@@ -117,9 +124,14 @@ const username = computed(() => {
 });
 const workouts = ref<Workout[]>(getWorkoutsByUserId(session.user?.id ?? -1));
 
+const _removeWorkout = (id:number) => {
+  removeWorkout(id)
+  workouts.value = getWorkoutsByUserId(session.user?.id ?? -1)
+};
+
 const isModalActive = ref(false);
 const currentWorkout = ref<Workout>({
-  userId: 1,
+  id: 1,
   type: 'Running',
   dateDaysAgo: 0,
   distance: 0,
@@ -139,7 +151,7 @@ function closeModal() {
 
 function resetCurrentWorkout() {
   currentWorkout.value = {
-    userId: 1,
+    id: 1,
     type: 'Running',
     dateDaysAgo: 0,
     distance: 0,
@@ -158,14 +170,9 @@ function handlePhotoUpload(event: Event) {
 }
 
 function saveWorkout() {
-  currentWorkout.value.userId = Date.now();
+  currentWorkout.value.id = Date.now();
   workouts.value.push({ ...currentWorkout.value });
   closeModal();
-}
-
-function deleteWorkout(workoutId: number) {
-  if(workoutId == -1) return; // invalid workout id (should never happen
-  workouts.value = workouts.value.filter(workout => workout.userId !== workoutId);
 }
 </script>
 
