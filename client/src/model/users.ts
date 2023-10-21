@@ -4,7 +4,7 @@
 import data from "../data/users.json";
 
 export interface User {
-  id?: number,
+  id: number,
   firstName: string,
   lastName: string,
   email: string,
@@ -24,6 +24,20 @@ export function getUsers(): User[] {
     return users;
 }
 
+export function getUserById(id: number): User | undefined {
+    return getUsers().find( x => x.id === id );
+}
+
 export function getUserByEmail(email: string): User | undefined {
   return getUsers().find( x => x.email === email );
+}
+
+export function getUsersFriendsIds(userId: number): number[] {
+  const allUsers = getUsers();
+  const ourUserIdSmaller = userId % 20;
+  // get all users whose ids are divisible by 3
+  const friends = getUsers().filter( x => x.id !== userId && x.id % ourUserIdSmaller === 0 );
+  const friendsIds = friends.map( x => x.id );
+  // return max 5 friends
+  return friendsIds.slice(0, 5);
 }

@@ -7,9 +7,7 @@ import { type User, getUserByEmail } from "./users";
 const session = reactive({
   user: null as User | null,
   redirectUrl: null as string | null,
-})
-
-
+});
 
 export function getSession(){
   return session;

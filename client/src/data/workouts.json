@@ -1,0 +1,16 @@
+{
+    "workouts": [
+        { "userId": 1, "type": "Running", "distance": 5, "duration": 30, "location": "Park"},
+        { "userId": 2, "type": "Swimming", "distance": 1, "duration": 45, "location": "Beach"},
+        { "userId": 3, "type": "Cycling", "distance": 10, "duration": 60, "location": "Hillside"},
+        { "userId": 4, "type": "Running", "distance": 8, "duration": 45, "location": "Trail"},
+        { "userId": 5, "type": "Swimming", "distance": 2, "duration": 30, "location": "Pool"},
+        { "userId": 6, "type": "Cycling", "distance": 15, "duration": 75, "location": "City Streets"},
+        { "userId": 7, "type": "Running", "distance": 10, "duration": 50, "location": "Beachside"},
+        { "userId": 8, "type": "Swimming", "distance": 1.5, "duration": 40, "location": "Lake"},
+        { "userId": 9, "type": "Cycling", "distance": 20, "duration": 90, "location": "Countryside"},
+        { "userId": 10, "type": "Running", "distance": 6, "duration": 35, "location": "Mountain Trail"},
+        { "userId": 11, "type": "Swimming", "distance": 2.5, "duration": 50, "location": "River"},
+        { "userId": 12, "type": "Cycling", "distance": 25, "duration": 120, "location": "Forest Path"}
+    ]
+}
