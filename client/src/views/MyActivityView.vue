@@ -21,13 +21,13 @@
   <h2 class="title is-4 mt-5">My Workouts</h2>
   <div class="columns is-centered">
     <div class="column is-half">
-      <div v-for="workout in workouts" :key="workout.id" class="workout-box">
+      <div v-for="workout in workouts" :key="workout.userId" class="workout-box">
         <!-- Display Username and Profile Picture -->
         <div class="user-details">
           <img :src="session.user?.image" alt="Profile Picture" class="profile-pic">
           <span class="user-activity-bold">{{ username }} went {{ workout.type.toLowerCase() }} at {{ workout.location }}</span> <!-- Updated class name -->
         </div>
-            <button class="delete is-small is-pulled-right" @click="deleteWorkout(workout.id)"></button>
+            <button class="delete is-small is-pulled-right" @click="deleteWorkout(workout.userId)"></button>
             <div class="columns">
               <!-- Workout information column -->
               <div class="column is-8">
@@ -109,32 +109,24 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { getSession } from '../model/session';
-
-interface Workout {
-  id: number;
-  type: string;
-  distance: string;
-  duration: string;
-  location: string;
-  photo: string | null;
-}
+import { getWorkoutsByUserId, type Workout, addWorkout } from "@/model/workouts";
 
 const session = getSession();
 const username = computed(() => {
   return session.user ? session.user.firstName + " " + session.user.lastName : '';
 });
+const workouts = ref<Workout[]>(getWorkoutsByUserId(session.user?.id ?? -1));
 
 const isModalActive = ref(false);
 const currentWorkout = ref<Workout>({
-  id: -1,
+  userId: 1,
   type: 'Running',
-  distance: '',
-  duration: '',
-  location: '',
-  photo: null,
+  dateDaysAgo: 0,
+  distance: 0,
+  duration: 0,
+  location: "",
+  photo: "",
 });
-const workouts = ref<Workout[]>([]);
-
 
 function openModal() {
   isModalActive.value = true;
@@ -147,12 +139,13 @@ function closeModal() {
 
 function resetCurrentWorkout() {
   currentWorkout.value = {
-    id: -1,
+    userId: 1,
     type: 'Running',
-    distance: '',
-    duration: '',
-    location: '',
-    photo: null,
+    dateDaysAgo: 0,
+    distance: 0,
+    duration: 0,
+    location: "",
+    photo: "",
   };
 }
 
@@ -165,14 +158,14 @@ function handlePhotoUpload(event: Event) {
 }
 
 function saveWorkout() {
-  currentWorkout.value.id = Date.now();
+  currentWorkout.value.userId = Date.now();
   workouts.value.push({ ...currentWorkout.value });
   closeModal();
 }
 
 function deleteWorkout(workoutId: number) {
   if(workoutId == -1) return; // invalid workout id (should never happen
-  workouts.value = workouts.value.filter(workout => workout.id !== workoutId);
+  workouts.value = workouts.value.filter(workout => workout.userId !== workoutId);
 }
 </script>
 

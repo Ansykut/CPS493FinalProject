@@ -2,11 +2,10 @@
 import { ref, computed } from 'vue';
 import { RouterLink } from 'vue-router'
 import { getSession, useLogin } from '../model/session'
-import { type User, getUsers } from '../model/users'
+import { type User, Users } from '../model/users'
 
 
 const session = getSession()
-const users = getUsers()
 
 const { login, logout } = useLogin()
 
@@ -52,16 +51,13 @@ const isLoggedIn = computed(() => {
           <span class="icon mr-2"><i class="fas fa-search"></i></span>
           People Search
         </RouterLink>
-        <!-- Display Admin dropdown only if Andrew Sykut is logged in -->
         <div v-if="isLoggedIn && session.user?.role == 'admin'" class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             <span class="icon mr-2"><i class="fas fa-cogs"></i></span>
             Admin
           </a>
           <div class="navbar-dropdown">
-            <a class="navbar-item">Option 1</a>
-            <a class="navbar-item">Option 2</a>
-            <a class="navbar-item">Option 3</a>
+            <RouterLink class="navbar-item" to="/admin">Users</RouterLink>
           </div>
         </div>
       </div>
@@ -83,7 +79,7 @@ const isLoggedIn = computed(() => {
                 Log in <span class="icon ml-2"><i class="fas fa-angle-down"></i></span>
               </a>
               <div class="navbar-dropdown">
-                <a class="navbar-item" v-for="user in users" @click="login(user.email, '')">
+                <a class="navbar-item" v-for="user in Users" @click="login(user.email, '')">
                   {{ user.firstName + " " + user.lastName  }}
                 </a> 
               </div>

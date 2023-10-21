@@ -55,8 +55,8 @@ const router = createRouter({
     },
     { // Adding the new route for AdminView
       path: '/admin',
-      name: 'people-search',
-      component: PeopleSearchView,
+      name: 'admin',
+      component: AdminView,
       //beforeEnter: requireLogin
     }
   ]
