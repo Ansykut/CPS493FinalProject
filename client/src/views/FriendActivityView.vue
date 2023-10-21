@@ -9,14 +9,22 @@
         <div v-for="workout in friendWorkouts" :key="workout.id" class="workout-box">
           <!-- Display Username and Profile Picture -->
           <div class="user-details">
-            <img :src="friendUser.image" alt="Profile Picture" class="profile-pic">
-            <span class="user-activity-bold">{{ friendUsername }} went {{ workout.type.toLowerCase() }} at {{ workout.location }}</span>
+            <img :src="session.user?.image" alt="Profile Picture" class="profile-pic">
+            <span class="user-activity-bold">{{ workout.friendName }} went {{ workout.type.toLowerCase() }} at {{ workout.location }}</span>
           </div>
-          <!-- Workout information -->
-          <div class="distance-duration">
-            <div class="distance">Distance (mi): {{ workout.distance }}</div>
-            <hr>
-            <div class="duration">Duration: {{ workout.duration }} mins</div>
+          <div class="columns">
+            <!-- Workout information column -->
+            <div class="column is-8">
+              <div class="distance-duration">
+                <div class="distance">Distance (mi): {{ workout.distance }}</div>
+                <hr> <!-- Line separating distance and duration -->
+                <div class="duration">Duration: {{ workout.duration }} mins</div>
+              </div>
+            </div>
+            <!-- Photo column -->
+            <div v-if="workout.photo" class="column is-4">
+              <img :src="workout.photo" alt="Workout Photo">
+            </div>
           </div>
         </div>
       </div>
@@ -26,7 +34,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { getSession } from '../model/session'; // Adjust this path if needed
+import { getSession } from '../model/session';
 
 // Get the session details
 const session = getSession();
@@ -38,18 +46,11 @@ const username = computed(() => {
 
 // Mock data for display purposes
 const friendWorkouts = [
-  { id: 1, type: 'Running', distance: '5', duration: '30', location: 'Park' },
-  { id: 2, type: 'Swimming', distance: '1', duration: '45', location: 'Beach' },
-  { id: 3, type: 'Cycling', distance: '10', duration: '60', location: 'Hillside' }
+  { id: 1, friendName: 'Andrew Sykut', type: 'Running', distance: '5', duration: '30', location: 'Park', photo: '@/assets/workout_photos/running_park.png' },
+  { id: 2, friendName: 'Sarah Kiel', type: 'Swimming', distance: '1', duration: '45', location: 'Beach', photo: '@/assets/workout_photos/swimming_beach.png' },
+  { id: 3, friendName: 'Steve Munich', type: 'Cycling', distance: '10', duration: '60', location: 'Hillside', photo: '@/assets/workout_photos/cycling_hillside.png' }
 ];
-
-const friendUser = {
-  image: 'path_to_friend_image.jpg' // replace with the actual path or URL
-};
-
-const friendUsername = "Friend's Name"; // replace with actual friend's name
 </script>
-
 
 <style scoped>
 /* Make the button full width */
@@ -66,7 +67,6 @@ const friendUsername = "Friend's Name"; // replace with actual friend's name
   margin-bottom: 1rem;
 }
 
-/* Styling for distance and duration */
 .distance-duration {
   display: flex;
   flex-direction: column;
@@ -87,41 +87,16 @@ const friendUsername = "Friend's Name"; // replace with actual friend's name
   align-items: center;
   margin-bottom: 1rem;
 }
-@media (min-width: 1024px) {
-  .container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-}
 
 .user-activity-bold {
   font-weight: bold;
   font-size: 1.6rem;
 }
-
 
 .profile-pic {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
-}
-
-.user-activity-bold {
-  font-weight: bold;
-  font-size: 1.6rem;
-}
-
-@media (min-width: 1024px) {
-  .container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
 }
 </style>
