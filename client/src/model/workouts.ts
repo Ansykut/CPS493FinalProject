@@ -1,5 +1,8 @@
 /* B"H
 */
+
+import { api } from "./session"
+
 const workoutPhotos: string[] = [
   "running_park.png",
   "swimming_beach.png",
@@ -46,6 +49,10 @@ export function sanitizeWorkoutData(): Workout[] {
     workouts.push({ ...x, photo });
   }
   return workouts;
+}
+
+export function getWorkouts(): Promise<Workout[]> {
+  return api('workouts');
 }
 
 //add workout

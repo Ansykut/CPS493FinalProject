@@ -3,6 +3,7 @@
 
 import data from "../data/users.json";
 import { reactive } from "vue";
+import { api } from "./session";
 
 export interface User {
   id: number,
@@ -38,10 +39,13 @@ export function getUserById(id: number): User | undefined {
   return Users.find(x => x.id === id);
 }
 
-export function getUserByEmail(email: string): User | undefined {
-  return Users.find(x => x.email === email);
+export function getUsers(): Promise< User[]> {
+  return api("users"); 
 }
-
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const users = await getUsers();
+  return users.find( x => x.email === email );
+}
 export function getUsersFriendsIds(userId: number): number[] {
   const allUsers = Users;
   const ourUserIdSmaller = userId % 20;
