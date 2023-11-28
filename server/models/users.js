@@ -188,6 +188,7 @@ function remove(id) {
 }
 
 
+
 module.exports = {
-  getAll, get, search, create, update, remove, login, register
+  getAll, get, search, create, update, remove, login, register,
 };

@@ -3,7 +3,7 @@
 */
 
 const express = require('express');
-const { getAll, get, search, create, update, remove, login, register } = require('../models/users');
+const { getAll, get, search, create, update, remove, login, register} = require('../models/users');
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
@@ -51,13 +51,6 @@ router.get('/', (req, res, next) => {
     
     remove(+req.params.id);
     res.send({message: 'User removed'});
-});
-.post('/seed', (req, res, next) => {
+})
 
-    seed()
-    .then(() => {
-      res.send({message: 'Products seeded'});
-    }).catch(next);
-  
-  })
 module.exports = router;
