@@ -1,56 +1,94 @@
-// @ts-check
-/* B"H
-*/
-
 const express = require('express');
-const { getAll, get, search, create, update, remove, login, register} = require('../models/users');
+const model = require('../models/users');
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router
+    .get('/' ,(req, res, next) => {
+        model.getAll(+req.query.page, +req.query.pageSize)
+            .then(list => {
+                const data = { data: list.items, total: list.total, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+    })
 
-    res.send(getAll());
+    .get('/search/:q', (req, res, next) => {
 
-})
-.get('/search' , (req, res, next) => {
+        model.search(req.params.q, +req.query.page, +req.query.pageSize)
+            .then(list => {
+                const data = { data: list.items, total: list.total, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+        
+    })
 
-    const results = search(req.query.q);
-    res.send(results);
-})
-.get('/:id', (req, res, next) => {
+    .get('/:id', (req, res, next) => {
 
-    const user = get(+req.params.id);
-    res.send( user );
+        model.getById(req.params.id)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
 
-})
-.post('/', (req, res, next) => {
+    })
 
-    const user = create(req.body);
-    res.send(user);
+    .post('/', (req, res, next) => {
 
-})
-.post('/register', (req, res, next) => {
+        model.add(req.body)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
 
-    const user = register(req.body);
-    res.send(user);
+    })
 
-})
-.post('/login', (req, res, next) => {
-    
-    const user = login(req.body.email, req.body.password);
-    res.send(user);
+    .put('/', (req, res, next) => {
 
-})
-.patch('/:id', (req, res, next) => {
-    
-    req.body.id = +req.params.id;
-    const user = update(req.body);
-    res.send(user);
+        model.update(req.body)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+
+    })
+
+    .delete('/', (req, res, next) => {
+
+        model.deleteItem(req.params._id)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+    })
+
+    .post('/seed', (req, res, next) => {
+        model.seed()
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+    })
+
+
+
+   
+    .post('/login', (req, res, next) => {
+        model.login(req.body.email, req.body.password)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+    })
+
+    .post('/oAuthLogin', (req, res, next) => {
+        model.oAuthLogin(req.body.provider, req.body.accessToken)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
+    })
+
   
-})
-.delete('/:id', (req, res, next) => {
+
     
-    remove(+req.params.id);
-    res.send({message: 'User removed'});
-})
 
 module.exports = router;

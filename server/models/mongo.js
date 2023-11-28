@@ -9,10 +9,10 @@ const DB_NAME = process.env.MONGO_DB_NAME;
 const client = new MongoClient(uri, {});
 
 async function connect() {
-    await client.connect();
+    const db = await client.connect();
     return client.db(DB_NAME);
 }
 
 module.exports = { 
-  connect, ObjectId
+  connect, ObjectId, DB_NAME
 };
