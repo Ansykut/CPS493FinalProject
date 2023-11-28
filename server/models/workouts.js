@@ -1,46 +1,40 @@
+const { ObjectId, connect } = require('./mongo');
 const data = require('../data/workouts.json');
 
-function getWorkouts(){
-    return data.workouts;
+
+
+const COLLECTION_NAME = 'workouts';
+async function getWorkouts() {
+  const db = await connect();
+  return db.collection(COLLECTION_NAME);
 }
 
-function getWorkoutbyName(workout) {
-    return data.workouts.find(workouts => workouts.workout === workout);
+
+/**
+ * @returns {Promise<workouts[]>} An array of workouts.
+ */
+
+async function getWorkouts(){
+    const db = await getWorkouts();
+    return db.find({}).toArray();
 }
 
-
-function addWorkout(workout) {
-    workout.id = data.workouts.length + 1;
+``
+async function addWorkout(workout) {
+    const newWorkout = { 
+    id : data.workouts.length + 1, ...workout };
     data.workouts.push(workout);
 }
 
 
-function updateWorkout(workout) {
-    const index = data.workouts.findIndex(s => s.id === workout.id);
-    data.workouts[index] = workout;
-}
-
-
-function deleteWorkout(workout) {
+async function deleteWorkout(workout) {
     const index = data.workouts.findIndex(s => s.workout === workout);
     data.workouts.splice(index, 1);
 }
 
-function searchWorkout(searchTerm) {
-    return data.workouts.filter(workouts => {
-        return  workouts.title.toLowerCase().includes(searchTerm.toLowerCase())  ||
-            workouts.description.toLowerCase().includes(searchTerm.toLowerCase())  ||
-            workouts.brand.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-}
 
 module.exports = {
     getWorkouts,
-    getWorkoutbyName,
     addWorkout,
-    updateWorkout,
     deleteWorkout,
-    searchWorkout
-    
-    
 };
