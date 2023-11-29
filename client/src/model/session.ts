@@ -40,9 +40,10 @@ export function useLogin(){
 
   return {
     async login(email: string, password: string): Promise< User | null> {
-      session.user = await api("users/login", { email, password });
-      router.push(session.redirectUrl || "/");
-      return session.user;
+      console.log("login", email, password);
+     // session.user = await api("users/login", { email, password });
+     // router.push(session.redirectUrl || "/");
+      return null
     },
     logout(){
       session.user = null;

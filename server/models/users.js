@@ -69,17 +69,27 @@
  * @type { {users: User[]} }
  */
 const data = require("../data/users.json");
-
+const { client, DB_NAME } = require("./mongo");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { use } = require("../controllers/products");
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECERT;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
+console.log(JWT_SECRET, JWT_EXPIRES_IN)
 
 /**
- * @returns {User[]} An array of products.
+ * @returns {Promise<User[]>} An array of products.
  */
-function getAll() {
-  return data.users;
+async function getAll() {
+  try {
+    const users = await client.db(DB_NAME).collection('users');
+    console.log(users)
+    return data.users;
+  } catch (error) {
+    console.log(error)
+  }
+
 }
 
 /**
@@ -87,7 +97,7 @@ function getAll() {
  */
 function get(id) {
   const item = data.users.find(x => x.id === id);
-  if(!item) {
+  if (!item) {
     throw new Error('User not found');
   }
   return item
@@ -99,7 +109,7 @@ function search(query) {
       x.firstName.toLowerCase().includes(query.toLowerCase()) ||
       x.lastName.toLowerCase().includes(query.toLowerCase()) ||
       x.email.toLowerCase().includes(query.toLowerCase()) ||
-      x.username.toLowerCase().includes(query.toLowerCase()) 
+      x.username.toLowerCase().includes(query.toLowerCase())
     );
   });
 }
@@ -113,59 +123,95 @@ function create(values) {
     id: data.users.length + 1,
     ...values,
   };
- 
+
   data.users.push(newItem);
   return newItem;
 }
 
 /**
- * @param {BaseUser} values - The user to create.
- * @returns {User} The created user.
+ * @param {BaseUser} values The user to create.
+ * @returns {Promise<User>} The created user.
  */
-function register(values) {
-  // register is like create but with validation
-  // and some extra logic
+async function register(values) {
+  try {
+    const { email, password, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,
+      height, macAddress, university, bank, company, ein, ssn, userAgent } = values;
 
-  const exists = data.users.some(x => x.username === values.username);
-  if(exists) {
-    throw new Error('Username already exists');
+    const userCollection = await client.db('exerciseDB').collection('users');
+
+    const userEixst = await userCollection.find({ email }).toArray()
+    console.log(userEixst.length)
+
+    if(userEixst.length > 0){
+      throw {
+        message: 'Email already exist',
+        status: 400
+      }
+      
+    }
+
+    
+    const salt = 10
+    const hash = await bcrypt.hash(password, salt)
+    const id = Math.floor(Math.random() * 1000)
+
+     await userCollection.insertOne({
+      email, password:hash, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,
+      height, macAddress, university, bank, company, ein, ssn, userAgent ,id
+    })
+
+    
+    return {
+      email, password, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,
+      height, macAddress, university, bank, company, ein, ssn, userAgent, id
+    }
+  } catch (error) {
+    throw error
   }
-
-  if(values.password.length < 8) {
-    throw new Error('Password must be at least 8 characters');
-  }
-
-  // TODO: Make sure user is create with least privileges
-
-  const newItem = {
-    id: data.users.length + 1,
-    ...values,
-  };
-
-  data.users.push(newItem);
-  return newItem;
 
 }
 
 /**
  * @param {string} email
  * @param {string} password
- * @returns { Promise< { user: User, token: string}> } The created user.
+ * @returns { Promise< { user: {}, token: string}> } The created user.
  */
-async function  login(email, password) {
+async function login(email, password) {
 
-  const item = data.users.find(x => x.email === email);
-  if(!item) {
-    throw new Error('User not found');
+ try{
+  
+  const userCollection = await client.db('exerciseDB').collection('users');
+  const  existingUser = await userCollection.find({email}).toArray()
+ 
+
+  if(existingUser.length === 0){
+    throw {
+      message: 'Invalid email or password',
+      status: 400
+    }
   }
 
-  if(item.password !== password) {
-    throw new Error('Wrong password');
+  const user = existingUser[0]
+  const validPassword = await bcrypt.compare(password, user.password)
+
+  if(!validPassword){
+    throw {
+      message: 'Invalid credntials',
+      status: 400
+    }
   }
 
-  const user = { ...item, password: undefined, };
-  const token = await generateJWT(user);
-  return { user, token };
+  const token = await generateJWT(user)
+  
+  delete user.password
+  return {
+    user,
+    token
+  }
+ }catch(error){
+   throw error
+   
+ }
 }
 
 /**
@@ -174,7 +220,7 @@ async function  login(email, password) {
  */
 function update(newValues) {
   const index = data.users.findIndex(p => p.id === newValues.id);
-  if(index === -1) {
+  if (index === -1) {
     throw new Error('User not found');
   }
   data.users[index] = {
@@ -189,28 +235,26 @@ function update(newValues) {
  */
 function remove(id) {
   const index = data.users.findIndex(x => x.id === id);
-  if(index === -1) {
+  if (index === -1) {
     throw new Error('User not found');
   }
   data.users.splice(index, 1);
 }
 
-function generateJWT(user) {
-  return new Promise((resolve, reject) => {
-    jwt.sign(user, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN } , (err, token) => {
-      if(err) {
-        reject(err);
-      } else {
-        resolve(token);
-      }
-    });
-  })
+async function generateJWT(user) {
+  
+  try{
+    return await jwt.sign(user, JWT_SECRET);
+  }catch(error){
+    throw error
+  
+  }
 }
 
 function verifyJWT(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, (err, user) => {
-      if(err) {
+      if (err) {
         reject(err);
       } else {
         resolve(user);

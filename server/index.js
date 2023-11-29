@@ -4,6 +4,7 @@ require('dotenv').config();
 const productController = require('./controllers/products');
 const userController = require('./controllers/users');
 const app = express();
+const { connect } = require('./models/mongo');
 
 const PORT = process.env.PORT ?? 3000;
 
@@ -40,8 +41,10 @@ app
 
 console.log('1: Trying to start server...');
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`2: Server is running at http://localhost:${PORT}`);
+     connect().then(() => {
+        console.log('Connected to database');})
 });
 
 console.log('3: End of file, waiting for requests...');
