@@ -1,4 +1,3 @@
-// @ts-check
 /**
  * @typedef {Object} Bank
  * @property {string} cardExpire
@@ -72,99 +71,92 @@ const data = require("../data/users.json");
 const { client, DB_NAME } = require("./mongo");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { use } = require("../controllers/products");
+//const { use } = require("../controllers/products");
+const { ObjectId, connect } = require('./mongo');
 
 const JWT_SECRET = process.env.JWT_SECERT;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 console.log(JWT_SECRET, JWT_EXPIRES_IN)
 
+const COLLECTION_NAME = 'users';
+async function getCollection() {
+  console.log('getCollection', DB_NAME, COLLECTION_NAME)
+  const db = client.db('exerciseDB')//await connect();
+  return db.collection(COLLECTION_NAME);
+}
+
 /**
  * @returns {Promise<User[]>} An array of products.
  */
 async function getAll() {
-  try {
-    const users = await client.db(DB_NAME).collection('users');
-    console.log(users)
-    return data.users;
-  } catch (error) {
-    console.log(error)
-  }
-
+  const col = await getCollection();
+  return col.find({}).toArray();
 }
 
 /**
- * @param {number} id - The product's ID.
+ * @param {number} id - The user's ID.
  */
-function get(id) {
-  const item = data.users.find(x => x.id === id);
-  if (!item) {
-    throw new Error('User not found');
-  }
-  return item
+async function get(id) {
+  const col = await getCollection();
+  return await col.findOne({ _id: ObjectId(id) });
 }
-
-function search(query) {
-  return data.users.filter(x => {
-    return (
-      x.firstName.toLowerCase().includes(query.toLowerCase()) ||
+/*x.firstName.toLowerCase().includes(query.toLowerCase()) ||
       x.lastName.toLowerCase().includes(query.toLowerCase()) ||
       x.email.toLowerCase().includes(query.toLowerCase()) ||
-      x.username.toLowerCase().includes(query.toLowerCase())
-    );
-  });
+      x.username.toLowerCase().includes(query.toLowerCase())*/
+async function search(query) {
+  const col = await getCollection();
+  const users = await col.find({
+    or: [
+      { firstName: { $regex: query, $options: 'i' } }, // i stands for ignore case
+      { lastName: { $regex: query, $options: 'i' } },
+      { email: { $regex: query, $options: 'i' } },
+      { username: { $regex: query, $options: 'i' } },
+    ],
+  }).toArray();
+
+  return users;
 }
 
 /**
  * @param {BaseUser} values - The user to create.
  * @returns {User} The created user.
  */
-function create(values) {
-  const newItem = {
-    id: data.users.length + 1,
-    ...values,
-  };
+async function create(newUser) {
+  const col = await getCollection();
+  const result = await col.insertOne(newUser);
+  newUser._id = result.insertedId;
 
-  data.users.push(newItem);
-  return newItem;
+  return newUser;
 }
 
 /**
- * @param {BaseUser} values The user to create.
+ * @param {BaseUser} baseUser The user to create.
  * @returns {Promise<User>} The created user.
  */
-async function register(values) {
+async function register(baseUser) {
   try {
-    const { email, password, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,
-      height, macAddress, university, bank, company, ein, ssn, userAgent } = values;
+    
 
     const userCollection = await client.db('exerciseDB').collection('users');
 
-    const userEixst = await userCollection.find({ email }).toArray()
-    console.log(userEixst.length)
+    const userExist = await userCollection.find({ email: baseUser.email }).toArray()
+    console.log(userExist.length)
 
-    if(userEixst.length > 0){
+    if (userExist.length > 0) {
       throw {
         message: 'Email already exist',
         status: 400
       }
-      
     }
-
-    
     const salt = 10
-    const hash = await bcrypt.hash(password, salt)
-    const id = Math.floor(Math.random() * 1000)
-
-     await userCollection.insertOne({
-      email, password:hash, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,
-      height, macAddress, university, bank, company, ein, ssn, userAgent ,id
-    })
-
+    const passwordHash = await bcrypt.hash(password, salt)
     
-    return {
-      email, password, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,
-      height, macAddress, university, bank, company, ein, ssn, userAgent, id
-    }
+    // spread operator, copy all the properties of baseUser into newUser
+    // adds password property to newUser
+    const newUser = {password:passwordHash, ...baseUser} 
+    await userCollection.insertOne(newUser)
+    return newUser
   } catch (error) {
     throw error
   }
@@ -177,77 +169,84 @@ async function register(values) {
  * @returns { Promise< { user: {}, token: string}> } The created user.
  */
 async function login(email, password) {
-
- try{
-  
-  const userCollection = await client.db('exerciseDB').collection('users');
-  const  existingUser = await userCollection.find({email}).toArray()
- 
-
-  if(existingUser.length === 0){
-    throw {
-      message: 'Invalid email or password',
-      status: 400
+  try {
+    const userCollection = await client.db('exerciseDB').collection('users');
+    const existingUser = await userCollection.find({ email }).toArray()
+    if (existingUser.length === 0) {
+      throw {
+        message: 'Invalid email or password',
+        status: 400
+      }
     }
-  }
 
-  const user = existingUser[0]
-  const validPassword = await bcrypt.compare(password, user.password)
+    const user = existingUser[0]
+    const validPassword = await bcrypt.compare(password, user.password)
 
-  if(!validPassword){
-    throw {
-      message: 'Invalid credntials',
-      status: 400
+    if (!validPassword) {
+      throw {
+        message: 'Invalid credntials',
+        status: 400
+      }
     }
-  }
 
-  const token = await generateJWT(user)
-  
-  delete user.password
-  return {
-    user,
-    token
+    const token = await generateJWT(user)
+
+    delete user.password
+    return {
+      user,
+      token
+    }
+  } catch (error) {
+    throw error
+
   }
- }catch(error){
-   throw error
-   
- }
 }
 
 /**
  * @param {User} newValues - The user's new data.
  * @returns {User} The updated user.
  */
-function update(newValues) {
-  const index = data.users.findIndex(p => p.id === newValues.id);
-  if (index === -1) {
-    throw new Error('User not found');
+async function update(newValues) {
+  try {
+    const userCollection = await client.db('exerciseDB').collection('users');
+    const existingUser = await userCollection.findOne({ id: newValues.id });
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    const updatedUser = {
+      ...existingUser, // spreads out the existing user
+      ...newValues, // if there are any new values, it will override the existing user
+    };
+    await userCollection.updateOne({ id: newValues.id }, { $set: updatedUser });
+    return updatedUser;
+  } catch (error) {
+    throw error;
   }
-  data.users[index] = {
-    ...data.users[index],
-    ...newValues,
-  };
-  return data.users[index];
 }
 
 /**
  * @param {number} id - The user's ID.
  */
-function remove(id) {
-  const index = data.users.findIndex(x => x.id === id);
-  if (index === -1) {
-    throw new Error('User not found');
+async function remove(id) {
+  try {
+    const userCollection = await client.db(DB_NAME).collection(COLLECTION_NAME);
+    const result = await userCollection.deleteOne({ id: id });
+    if (result.deletedCount === 0) {
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    throw error;
   }
-  data.users.splice(index, 1);
 }
 
 async function generateJWT(user) {
-  
-  try{
+
+  try {
     return await jwt.sign(user, JWT_SECRET);
-  }catch(error){
+  } catch (error) {
     throw error
-  
+
   }
 }
 
@@ -263,7 +262,13 @@ function verifyJWT(token) {
   })
 }
 
+async function seed() {
+  const col = await getCollection();
+
+  await col.insertMany(data.users);
+}
+
 
 module.exports = {
-  getAll, get, search, create, update, remove, login, register, generateJWT, verifyJWT
+  getAll, get, search, create, update, remove, login, register, generateJWT, verifyJWT, seed
 };

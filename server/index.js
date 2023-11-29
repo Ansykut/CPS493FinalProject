@@ -44,7 +44,8 @@ console.log('1: Trying to start server...');
 app.listen(PORT, async () => {
     console.log(`2: Server is running at http://localhost:${PORT}`);
      connect().then(() => {
-        console.log('Connected to database');})
+        console.log('Connected to database');
+    })
 });
 
 console.log('3: End of file, waiting for requests...');
