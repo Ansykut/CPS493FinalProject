@@ -11,7 +11,7 @@ const client = new MongoClient(uri, {});
 async function connect() {
   try {
     await client.connect();
-    await testUsers()
+    //await testUsers()
   } catch (err) {
 
     console.log('Failed to connect to databese')

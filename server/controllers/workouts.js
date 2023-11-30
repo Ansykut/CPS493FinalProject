@@ -3,11 +3,18 @@ const model = require('../models/workouts');
 const router = express.Router();
 
 router
-    .get('/', (req, res) => {
-        const list = model.getWorkouts();
-        res.send(list)
-    })
 
+    //updated to match users.js
+    .get('/', async (req, res) => {
+    try {
+        console.log('get all')
+        let workouts = await model.getAll()
+        return res.status(200).json({ message: "success", workouts })
+    } catch (error) {
+        console.log(error)
+    }
+    })
+    
     .get('/search/:q', (req, res) => {
         const term = req.params.q;
         console.log({ term });
@@ -21,6 +28,16 @@ router
         res.send(list);
 
     
+    })
+
+    //updated to match users.js
+    .post('/seed', (req, res, next) => {
+        console.log('seed')
+        model.seed()
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
     })
 
     .post('/', (req, res) => {
@@ -49,4 +66,3 @@ router
     })
 
 module.exports = router;
-

@@ -3,6 +3,7 @@ const express = require('express');
 require('dotenv').config();
 const productController = require('./controllers/products');
 const userController = require('./controllers/users');
+const workoutController = require('./controllers/workouts');
 const app = express();
 const { connect } = require('./models/mongo');
 
@@ -24,6 +25,8 @@ app
 
     .use('/api/v1/products', productController)
     .use('/api/v1/users', userController)
+    .use('/api/v1/workouts', workoutController) //<------------------ shouldnt this work?
+
 
     .get('*', (req, res) => {
         res.sendFile(path.join( __dirname, '../client/dist/index.html') )

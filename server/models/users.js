@@ -81,7 +81,7 @@ console.log(JWT_SECRET, JWT_EXPIRES_IN)
 const COLLECTION_NAME = 'users';
 async function getCollection() {
   console.log('getCollection', DB_NAME, COLLECTION_NAME)
-  const db = client.db('exerciseDB')//await connect();
+  const db = client.db(DB_NAME)//await connect();
   return db.collection(COLLECTION_NAME);
 }
 
