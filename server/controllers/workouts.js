@@ -6,13 +6,14 @@ router
 
     //updated to match users.js
     .get('/', async (req, res) => {
-    try {
-        console.log('get all')
-        let workouts = await model.getAll()
-        return res.status(200).json({ message: "success", workouts })
-    } catch (error) {
-        console.log(error)
-    }
+        try {
+            console.log('get all');
+            let workouts = await model.getWorkouts();
+            return res.status(200).json({ message: "success", workouts });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: "Internal server error" });
+        }
     })
     
     .get('/search/:q', (req, res) => {
@@ -40,16 +41,15 @@ router
             }).catch(next);
     })
 
-    .post('/', (req, res) => {
-        const workout = req.body;
-
-        console.log({ user });
-        console.log( req.query );
-        console.log( req.params );
-        console.log( req.headers );
-
-        model.addProduct(workouts);
-        res.send(workouts);
+    .post('/', async (req, res) => {
+        try {
+            const workout = req.body;
+            const addedWorkout = await model.addWorkout(workout);
+            res.status(201).json(addedWorkout);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: "Internal server error" });
+        }
     })
   
     .patch('/', (req, res) => {
