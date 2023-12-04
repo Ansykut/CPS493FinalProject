@@ -55,9 +55,13 @@ export function getWorkouts(): Promise<Workout[]> {
   return api('workouts');
 }
 
-//add workout
-export function addWorkout(workout: Workout) {
-  Workouts.push(workout);
+export async function addWorkout(workout: Workout) {
+  try {
+    // Assuming '/workouts' is your server's endpoint for adding a workout
+    await api('workouts', workout, 'POST');
+  } catch (error) {
+    console.error('Error in adding workout:', error);
+  }
 }
 
 // remove workout by id

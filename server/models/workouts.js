@@ -13,6 +13,8 @@
 * @property {string} location
 * @property {string} photo
 
+
+
 interface stats {
   distance: number,
   duration: number,
@@ -57,7 +59,7 @@ const bcrypt = require('bcrypt');
 //Updated to match users.js DID NOT CHANGE ANY DB NAMES!!!!!!
 const COLLECTION_NAME = 'workouts';
 async function getCollection() {
-    console.log('getCollection', DB_NAME, COLLECTION_NAME)
+    
     const db = client.db(DB_NAME)//await connect();
   return db.collection(COLLECTION_NAME);
 }
@@ -86,8 +88,21 @@ async function get(id) {
  * @param {Workout} values - The workout to be create.
  * @returns {savedWorkout} The created workout.
  */
+
+
+const defaultWorkout = {
+  dateDaysAgo: 0,
+  type: '',
+  distance: 0,
+  duration: 0,
+  location: '',
+  photo: ''
+}
+
+
 //direct rip from users.js
 async function addWorkout(newWorkout) {
+    newWorkout = { ...defaultWorkout, ...newWorkout };
     const col = await getCollection();
     const result = await col.insertOne(newWorkout);
     newWorkout._id = result.insertedId;
@@ -101,6 +116,12 @@ async function deleteWorkout(workout) {
     const result = await userCollection.deleteOne({ workout: workout });
 }
 
+//deleteAllWorkouts
+async function deleteAllWorkouts() {
+    const userCollection = await client.db(DB_NAME).collection(COLLECTION_NAME);
+    const result = await userCollection.deleteMany({});
+}
+
 async function seed() {
     try {
         const col = await getCollection();
@@ -109,9 +130,11 @@ async function seed() {
         console.error("Error seeding workouts:", error);
     }
 }
+
 module.exports = {
     getWorkouts,
     addWorkout,
     deleteWorkout,
     seed,
+    deleteAllWorkouts
 };

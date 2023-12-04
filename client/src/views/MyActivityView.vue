@@ -169,9 +169,14 @@ function handlePhotoUpload(event: Event) {
   }
 }
 
-function saveWorkout() {
+async function saveWorkout() {
   currentWorkout.value.id = Date.now();
-  workouts.value.push({ ...currentWorkout.value });
+  try {
+    await addWorkout({ ...currentWorkout.value });
+    workouts.value = getWorkoutsByUserId(session.user?.id ?? -1);
+  } catch (error) {
+    console.error('Error adding workout:', error);
+  }
   closeModal();
 }
 </script>

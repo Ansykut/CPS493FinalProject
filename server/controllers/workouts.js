@@ -65,4 +65,10 @@ router
         res.send(workout);
     })
 
+    //delete all workouts
+    .delete('/all', (req, res) => {
+        model.deleteAllWorkouts();
+        res.send('all workouts deleted');
+    })
+
 module.exports = router;
