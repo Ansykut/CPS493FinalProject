@@ -22,7 +22,15 @@ export function api(action: string, body?: unknown, method?: string){
     return rest(`${API_ROOT}/${action}`, body, method);
 }
 
+export type DataEnvelope<T> = {
+    data: T,
+    isSuccess: boolean,
+    error?: string,
+}
 
+export type DataListEnvelope<T> = DataEnvelope<T[]> & {
+    total: number,
+}
 
 /*  Asynchronous patterns in JavaScript
     1. Callbacks

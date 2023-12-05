@@ -34,6 +34,32 @@ export function showError(err: any){
   session.messages.push({ type: "error", text: err.message ?? err});
   toast.error( err.message ?? err);
 }
+export async function loginWithServer(email: string, password: string): Promise<User> {
+      
+  const router = useRouter();
+  const person = await api('users/login', {email, password}, 'POST');
+
+  session.user = person.data.user;
+
+  if(session.user) {
+  session.user.token = person.data.token;
+  //router.push('/');
+  }
+
+
+  //  router.push(session.redirectUrl ?? "/");
+  // session.redirectUrl = null;
+
+  return person.data.user;
+}
+
+export function useSession() {
+  return session;
+}
+
+export function loginWithUser(user: User) {
+  session.user = user;
+}
 
 export function useLogin(){
   const router = useRouter();

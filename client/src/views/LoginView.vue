@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { useLogin } from '../model/session'
+import { useSession, loginWithServer, loginWithUser,useLogin } from "../model/session";
 import { useRouter } from 'vue-router';
 import {ref} from 'vue';
 import type { User } from '../model/users'
 
-const { login, logout } = useLogin()
-
+//const { login, logout } = useLogin()
+const session = useSession();
 const email = ref('')
 const password = ref('')
 
 const router = useRouter()
 
+const user1 = ref<User | null>(null);
 
 function login(){
     
-  loginWithServer(email.value, password.value).then((user: { name: null; } | undefined) => {
+  loginWithServer(email.value, password.value).then((user) => {
 
-if(user.name === null || user === undefined){
+if(user.firstName === null || user === undefined){
     console.log("user is null");
     return;
 }
