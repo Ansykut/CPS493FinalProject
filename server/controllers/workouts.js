@@ -16,6 +16,7 @@ router
         }
     })
     
+
     .get('/search/:q', (req, res) => {
         const term = req.params.q;
         console.log({ term });

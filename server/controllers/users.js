@@ -69,19 +69,15 @@ router
                 res.send(data)
             }).catch(next);
     })
-    .post('/login', async (req, res) => {
-        try {
-            const { email, password } = req.body;
-            let user = await model.login(email, password)
-            return res.status(200).json({ message: "success", user })
-        } catch (error) {
-            if (error.code !== 500) {
-                return res.status(400).json(error.message)
-            } else {
-                return res.status(500).json(error.message)
-            }
-        }
+
+    .post('/login', (req, res, next) => {
+        model.login(req.body.email, req.body.password)
+            .then(x => {
+                const data = { data: x, isSuccess: true };
+                res.send(data)
+            }).catch(next);
     })
+    
     .post('/register', async (req, res) => {
         try {
             const { email, password, firstName, lastName, maidenName, age, gender, phone, username, birthDate, image, bloodGroup,

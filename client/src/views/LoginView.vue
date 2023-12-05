@@ -1,42 +1,75 @@
 <script setup lang="ts">
 import { useLogin } from '../model/session'
+import { useRouter } from 'vue-router';
+import {ref} from 'vue';
+import type { User } from '../model/users'
 
 const { login, logout } = useLogin()
+
+const email = ref('')
+const password = ref('')
+
+const router = useRouter()
+
+
+function login(){
+    
+  loginWithServer(email.value, password.value).then((user: { name: null; } | undefined) => {
+
+if(user.name === null || user === undefined){
+    console.log("user is null");
+    return;
+}
+else{
+
+router.push("/");
+}
+
+
+});
+
+}
 
 
 </script>
 
 <template>
-  <div class="hero-body">
-    <div class="column is-half is-offset-one-quarter">
-      <div class="box">
-        <div class="field">
-          <p class="control has-icons-left has-icons-right">
-            <input  class="input" type="email" placeholder="Email" />
-            <span class="icon is-small is-left">
-              <i class="fas fa-envelope"></i>
-            </span>
-            <span class="icon is-small is-right">
-              <i class="fas fa-check"></i>
-            </span>
-          </p>
-        </div>
-        <div class="field">
-          <p class="control has-icons-left">
-            <input class="input" type="password" placeholder="Password" />
-            <span class="icon is-small is-left">
-              <i class="fas fa-lock"></i>
-            </span>
-          </p>
-        </div>
-        <div class="field">
-          <p class="control">
-            <button class="button is-success" >Login</button>
-          </p>
-        </div>
-      </div>
+
+  <template>
+    <div class="box">
+
+       
+       <div class="form">
+
+           <h1 class="title">Login</h1>
+           <h2 class="subtitle">Please enter your credentials</h2>
+   
+           <div class="field">
+               <label class="label">Email</label>
+               <div class="control">
+                   <input class="input" type="email" v-model="email">
+               </div>
+           </div>
+   
+           <div class="field">
+               <label class="label">Password</label>
+               <div class="control">
+                   <input class="input" type="password" v-model="password">
+               </div>
+           </div>
+   
+           <div class="field">
+               <div class="control">
+                   <button class="button is-link" @click="login">Login</button>
+               </div>
+           </div>
+
+       </div>
+
     </div>
-  </div>
+</template>
+ 
+   
 </template>
 
 <style scoped></style>

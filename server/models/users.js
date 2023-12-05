@@ -169,37 +169,26 @@ async function register(baseUser) {
  * @returns { Promise< { user: {}, token: string}> } The created user.
  */
 async function login(email, password) {
-  try {
-    const userCollection = await client.db('exerciseDB').collection('users');
-    const existingUser = await userCollection.find({ email }).toArray()
-    if (existingUser.length === 0) {
-      throw {
-        message: 'Invalid email or password',
-        status: 400
-      }
+
+  const col = await getCollection();
+  const user = await col.findOne({ email: email });
+  if (!user) {
+    throw {
+      message: 'User not found',
+      status: 404
     }
-
-    const user = existingUser[0]
-    const validPassword = await bcrypt.compare(password, user.password)
-
-    if (!validPassword) {
-      throw {
-        message: 'Invalid credntials',
-        status: 400
-      }
-    }
-
-    const token = await generateJWT(user)
-
-    delete user.password
-    return {
-      user,
-      token
-    }
-  } catch (error) {
-    throw error
-
   }
+  if(user.password !== password){
+    throw {
+      message: 'Password is incorrect',
+      status: 400
+    }
+  }
+  const squeakyCleanUser = { ...user, password: undefined };
+  const token = await generateJWT(squeakyCleanUser);
+  return { user: squeakyCleanUser, token: token };
+
+
 }
 
 /**
