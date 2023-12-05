@@ -4,6 +4,7 @@
 import data from "../data/users.json";
 import { reactive } from "vue";
 import { api } from "./session";
+import type { DataEnvelope, DataListEnvelope } from "./myFetch";
 
 export interface User {
   id: number,
@@ -40,13 +41,19 @@ export function getUserById(id: number): User | undefined {
   return Users.find(x => x.id === id);
 }
 
-export function getUsers(): Promise< User[]> {
-  return api("users"); 
+export function getUsers(): Promise<DataListEnvelope<User>> {
+
+  //console.log("Do i get here");
+  return api('users');
+
 }
-export async function getUserByEmail(email: string): Promise<User | undefined> {
-  const users = await getUsers();
-  return users.find( x => x.email === email );
-}
+
+  export async function getUserByEmail(email: string): Promise<User | undefined> {
+    const users = await getUsers();
+    const user = users.data.find((x: User) => x.email === email);
+    return user;
+  }
+  
 export function getUsersFriendsIds(userId: number): number[] {
   const allUsers = Users;
   const ourUserIdSmaller = userId % 20;

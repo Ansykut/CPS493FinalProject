@@ -1,25 +1,22 @@
-/* B"H
-*/
+const API_URL = import.meta.env.VITE_API_URL ?? '/api/v1/';
 
-const API_ROOT = import.meta.env.VITE_API_ROOT as string;
-
-export function rest(url: string, body?: unknown, method?: string){
+export function rest(url: string, data?: any, method?: string, headers?: any){
     return fetch(url, {
-        method: method ?? (body ? "POST" : "GET"),
+        method: method ?? (data ? 'POST' : 'GET'),
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...headers,
         },
-        body: body ? JSON.stringify(body) : undefined
+        body: data ? JSON.stringify(data) : undefined,
     })
-        .then(response => response.ok 
-            ? response.json()
-            : response.json().then(err => Promise.reject(err))
-        )
-
+        .then(res => res.ok 
+            ? res.json() 
+            : res.json().then(x=> { throw({ ...x, message: x.error }) } )
+        );
 }
 
-export function api(action: string, body?: unknown, method?: string){
-    return rest(`${API_ROOT}/${action}`, body, method);
+export function api(url: string, data?: any, method?: string, headers?: any){
+    return rest(API_URL + url, data, method, headers);
 }
 
 export type DataEnvelope<T> = {
@@ -31,7 +28,6 @@ export type DataEnvelope<T> = {
 export type DataListEnvelope<T> = DataEnvelope<T[]> & {
     total: number,
 }
-
 /*  Asynchronous patterns in JavaScript
     1. Callbacks
     2. Pipelining
