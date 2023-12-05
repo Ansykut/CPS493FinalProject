@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { RouterLink } from 'vue-router'
-import { getSession, useLogin } from '../model/session'
+import { getSession, loginWithServer, logout } from '../model/session'
 import { type User, Users } from '../model/users'
 
-
 const session = getSession()
-
-const { login, logout } = useLogin()
-
-
-
 const isActive = ref(false);
 const isDropdownActive = ref(false);
-const isLoggedIn = computed(() => {
-  return session.user !== null;
-})
+const isLoggedIn = computed(() => session.user !== null);
+
+const login = async (email: string, password: string) => {
+  await loginWithServer(email, password);
+}
+
+
 </script>
 
 <template>

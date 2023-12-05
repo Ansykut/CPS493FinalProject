@@ -79,6 +79,10 @@ export async function loginWithServer(email: string, password: string): Promise<
   
 
 }
+export async function logout() {
+  session.user = null;
+  // handle other logout related tasks like clearing tokens, redirecting, etc.
+}
 
 export function useLogin(email: string, password: string) {
     
