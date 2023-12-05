@@ -56,29 +56,27 @@ export function showError(err: any) {
   toast.error( err.message ?? err);
 }
 
-export async function loginWithServer(email: string, password: string): Promise<User> {
-      
-  const router = useRouter();
-  const person = await api('users/login', {email, password}, 'POST');
+export async function loginWithServer(email: string, password: string): Promise<User | null> {
+  try {
+    const response = await api('users/login', {email, password}, 'POST');
+    session.user = response.data.user;
 
-  session.user = person.data.user;
-
-  if(session.user) {
-  session.user.token = person.data.token;
- // addMessage("Login Successful", "success");
-  //router.push('/');
+    if(session.user) {
+      session.user.token = response.data.token;
+      // Handle successful login, e.g., show a success toast, redirect, etc.
+      return session.user;
+    } else {
+      // Handle case where login is unsuccessful but no error is thrown
+      toast.error("Login unsuccessful");
+      return null;
+    }
+  } catch (err) {
+    // Handle any errors that occur during the login process
+    showError(err);
+    return null;
   }
-
-
-  //  router.push(session.redirectUrl ?? "/");
-  // session.redirectUrl = null;
-
-  return person.data.user;
-  
-
-  
-
 }
+
 export async function logout() {
   session.user = null;
   // handle other logout related tasks like clearing tokens, redirecting, etc.

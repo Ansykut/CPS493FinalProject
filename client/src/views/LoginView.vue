@@ -1,76 +1,58 @@
 <script setup lang="ts">
-import { useSession, loginWithServer, loginWithUser,useLogin } from "../model/session";
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import {ref} from 'vue';
-import type { User } from '../model/users'
+import { loginWithServer } from "../model/session";
+import type { User } from '../model/users';
 
-//const { login, logout } = useLogin()
-const session = useSession();
-const email = ref('')
-const password = ref('')
+const email = ref('');
+const password = ref('');
+const router = useRouter();
 
-const router = useRouter()
-
-const user1 = ref<User | null>(null);
-
-function login(){
-    
-  loginWithServer(email.value, password.value).then((user) => {
-
-if(user.firstName === null || user === undefined){
-    console.log("user is null");
-    return;
+async function login() {
+    try {
+        const user = await loginWithServer(email.value, password.value);
+        if (user && user.firstName) {
+            router.push("/");
+        } else {
+            console.log("Invalid login credentials");
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        // Handle login error (show message to user, etc.)
+    }
 }
-else{
-
-router.push("/");
-}
-
-
-});
-
-}
-
-
 </script>
 
 <template>
-
-  <template>
-    <div class="box">
-
-       
-       <div class="form">
-
-           <h1 class="title">Login</h1>
-           <h2 class="subtitle">Please enter your credentials</h2>
-   
-           <div class="field">
-               <label class="label">Email</label>
-               <div class="control">
-                   <input class="input" type="email" v-model="email">
-               </div>
-           </div>
-   
-           <div class="field">
-               <label class="label">Password</label>
-               <div class="control">
-                   <input class="input" type="password" v-model="password">
-               </div>
-           </div>
-   
-           <div class="field">
-               <div class="control">
-                   <button class="button is-link" @click="login">Login</button>
-               </div>
-           </div>
-
-       </div>
-
+  <div class="hero-body">
+    <div class="column is-half is-offset-one-quarter">
+      <div class="box">
+        <div class="field">
+          <p class="control has-icons-left has-icons-right">
+            <input v-model="email" class="input" type="email" placeholder="Email" />
+            <span class="icon is-small is-left">
+              <i class="fas fa-envelope"></i>
+            </span>
+          </p>
+        </div>
+        <div class="field">
+          <p class="control has-icons-left">
+            <input v-model="password" class="input" type="password" placeholder="Password" />
+            <span class="icon is-small is-left">
+              <i class="fas fa-lock"></i>
+            </span>
+          </p>
+        </div>
+        <div class="field">
+          <p class="control">
+            <button class="button is-success" @click="login">Login</button>
+          </p>
+        </div>
+      </div>
     </div>
-</template>
- 
-   
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* Your styles here */
+</style>
