@@ -4,111 +4,60 @@ import { reactive } from "vue";
 import { useRouter } from "vue-router"
 import { useToast } from "vue-toastification";
 import * as myFetch from "./myFetch";
-import type { DataEnvelope, DataListEnvelope } from "./myFetch";
-import type { Workout } from "./workouts";
 import { type User, getUserByEmail } from "./users";
 
 const toast = useToast();
 
 const session = reactive({
   user: null as User | null,
-  isLoading: false,
-  messages: [] as {
-      msg: string,
-      type: "success" | "danger" | "warning" | "info",
-  }[],
+  token: null as string | null,
   redirectUrl: null as string | null,
+  messages: [] as {
+    type: string,
+    text: string
+  }[],
+  loading: 0
 })
 
-export function api(url: string, data?: any, method?: string, headers?: any) {
-  session.isLoading = true;
+export function api(action: string, body?: unknown, method?: string, headers?: any){
+  session.loading++;
 
-  if(session.user?.token)
-  {headers = {
-      "Authorization": `Bearer ${session.user?.token}`,
-      ...headers,
+  if(session.token){
+    headers = headers ?? {};
+    headers['Authorization'] = `Bearer ${session.token}`;
   }
-}
-  return myFetch.api(url, data, method, headers)
-      .catch(err => {
-          console.error({err});
-          session.messages.push({
-              msg: err.message  ?? JSON.stringify(err),
-              type: "danger",
-          })
-      })
-      .finally(() => {
-          session.isLoading = false;
-      })
-}
 
+  return myFetch.api(`${action}`, body, method, headers)
+    .catch(err=> showError(err))
+    .finally(()=> session.loading--);
+}
 
 export function getSession(){
   return session;
 }
 
-export function showError(err: any) {
+export function showError(err: any){
   console.error(err);
-  session.messages.push({
-    msg: err.message ?? err,
-    type: "danger",
-  });
+  session.messages.push({ type: "error", text: err.message ?? err});
   toast.error( err.message ?? err);
 }
 
-export async function loginWithServer(email: string, password: string): Promise<User | null> {
-  try {
-    const response = await api('users/login', {email, password}, 'POST');
-    session.user = response.data.user;
+export function useLogin(){
+  const router = useRouter();
 
-    if(session.user) {
-      session.user.token = response.data.token;
-      // Handle successful login, e.g., show a success toast, redirect, etc.
+  return {
+    async login(email: string, password: string): Promise< User | null> {
+      const response = await api("users/login", { email, password });
+
+      session.user = response.user;
+      session.token = response.token;
+
+      router.push(session.redirectUrl || "/");
       return session.user;
-    } else {
-      // Handle case where login is unsuccessful but no error is thrown
-      toast.error("Login unsuccessful");
-      return null;
+    },
+    logout(){
+      session.user = null;
+      router.push("/login");
     }
-  } catch (err) {
-    // Handle any errors that occur during the login process
-    showError(err);
-    return null;
   }
-}
-
-export async function logout() {
-  session.user = null;
-  // handle other logout related tasks like clearing tokens, redirecting, etc.
-}
-
-export function useLogin(email: string, password: string) {
-    
-
-  return async function() {
-   const response = await api('users/login', {email, password}, 'POST');
-
-   session.user = response.data.user;
-   
-   console.log(session.user);
-   if(!session.user) {
-       //addMessage("User not found", "danger");
-       return;
-   }
-   session.user.token = response.data.token;
-
-
-
-     return response.data.user;
-  
-
-  //  router.push(session.redirectUrl ?? "/");
-  //  session.redirectUrl = null;
-}
-}
-export function useSession() {
-  return session;
-}
-export function loginWithUser(user: User) {
-  session.user = user;
 }

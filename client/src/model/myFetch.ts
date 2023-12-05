@@ -19,15 +19,7 @@ export function api(url: string, data?: any, method?: string, headers?: any){
     return rest(API_URL + url, data, method, headers);
 }
 
-export type DataEnvelope<T> = {
-    data: T,
-    isSuccess: boolean,
-    error?: string,
-}
 
-export type DataListEnvelope<T> = DataEnvelope<T[]> & {
-    total: number,
-}
 /*  Asynchronous patterns in JavaScript
     1. Callbacks
     2. Pipelining
