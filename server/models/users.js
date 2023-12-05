@@ -122,45 +122,43 @@ async function search(query) {
  * @param {BaseUser} values - The user to create.
  * @returns {User} The created user.
  */
-async function create(newUser) {
-  const col = await getCollection();
-  const result = await col.insertOne(newUser);
-  newUser._id = result.insertedId;
-
-  return newUser;
-}
-
-/**
- * @param {BaseUser} baseUser The user to create.
- * @returns {Promise<User>} The created user.
- */
-async function register(baseUser) {
-  try {
-    
-
-    const userCollection = await client.db('exerciseDB').collection('users');
-
-    const userExist = await userCollection.find({ email: baseUser.email }).toArray()
-    console.log(userExist.length)
-
-    if (userExist.length > 0) {
-      throw {
-        message: 'Email already exist',
-        status: 400
-      }
-    }
-    const salt = 10
-    const passwordHash = await bcrypt.hash(password, salt)
-    
-    // spread operator, copy all the properties of baseUser into newUser
-    // adds password property to newUser
-    const newUser = {password:passwordHash, ...baseUser} 
-    await userCollection.insertOne(newUser)
-    return newUser
-  } catch (error) {
-    throw error
+ async function create(values) {
+   const col = await getCollection();
+   const newItem = {
+     id: data.users.length + 1,
+     ...values,
+   };
+    const result = await col.insertOne(newItem);
+    return newItem;
   }
 
+/**
+ * @param {BaseUser} values - The user to register.
+ * @returns {Promise<User>} The registered user.
+ */
+async function register(values) {
+  // register is like create but with validation
+  // and some extra logic
+
+  const exists = data.users.some(x => x.username === values.username);
+  if (exists) {
+    throw new Error('Username already exists');
+  }
+
+  if (values.password.length < 8) {
+    throw new Error('Password must be at least 8 characters');
+  }
+
+  // TODO: Make sure user is created with least privileges
+
+  const col = await getCollection();
+  const newItem = {
+    id: data.users.length + 1,
+    ...values,
+  };
+
+  await col.insertOne(newItem);
+  return newItem;
 }
 
 /**
