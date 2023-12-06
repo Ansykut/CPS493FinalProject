@@ -6,6 +6,7 @@ import MyActivityView from '../views/MyActivityView.vue'
 import FriendActivityView from '../views/FriendActivityView.vue'
 import PeopleSearchView from '../views/PeopleSearchView.vue'
 import AdminView from '../views/AdminView.vue'
+import SignupView from '../views/SignupView.vue'
 import { getSession } from '@/model/session';
 
 const router = createRouter({
@@ -57,6 +58,12 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
+      //beforeEnter: requireLogin
+    },
+    { // Adding the new route for AdminView
+      path: '/signup',
+      name: 'signup',
+      component: SignupView,
       //beforeEnter: requireLogin
     }
   ]

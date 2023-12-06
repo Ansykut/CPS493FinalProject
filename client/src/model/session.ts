@@ -19,7 +19,10 @@ const session = reactive({
   }[],
   redirectUrl: null as string | null,
 })
+export function createUser(user: User): Promise<DataEnvelope<User>> {
 
+  return api('users/', user, 'POST')
+}
 export function api(url: string, data?: any, method?: string, headers?: any) {
   session.isLoading = true;
 

@@ -10,7 +10,7 @@ const isDropdownActive = ref(false);
 const isLoggedIn = computed(() => session.user !== null);
 
 const login = async (email: string, password: string) => {
-  await loginWithServer(email, password);
+  await loginWithServer(email, password)
 }
 
 
@@ -65,6 +65,8 @@ const login = async (email: string, password: string) => {
           <div class="buttons">
             <a v-if="!isLoggedIn" class="button is-primary">
               <strong>Sign up</strong>
+              <RouterLink class="navbar-item" to="/signup">signup</RouterLink>
+
             </a>
             <span v-if="isLoggedIn" class="mr-3">
               <span class="icon mr-4">
@@ -77,7 +79,7 @@ const login = async (email: string, password: string) => {
                 Log in <span class="icon ml-2"><i class="fas fa-angle-down"></i></span>
               </a>
               <div class="navbar-dropdown">
-                <a class="navbar-item" v-for="user in Users" @click="login(user.email, '')">
+                <a class="navbar-item" v-for="user in Users" @click="login(user.email, user.password as string)">
                   {{ user.firstName + " " + user.lastName  }}
                 </a> 
               </div>

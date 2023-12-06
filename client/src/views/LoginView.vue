@@ -4,23 +4,23 @@ import { useRouter } from 'vue-router';
 import { loginWithServer } from "../model/session";
 import type { User } from '../model/users';
 
+
 const email = ref('');
 const password = ref('');
 const router = useRouter();
 
-async function login() {
-    try {
-        const user = await loginWithServer(email.value, password.value);
-        if (user && user.firstName) {
-            router.push("/");
+function login() {
+    loginWithServer(email.value, password.value).then((user: User | null) => {
+        if (user === null) {
+            console.log("user is null");
+            return;
         } else {
-            console.log("Invalid login credentials");
+            router.push("/");
         }
-    } catch (error) {
-        console.error("Login error:", error);
-        // Handle login error (show message to user, etc.)
-    }
+       
+    });
 }
+
 </script>
 
 <template>

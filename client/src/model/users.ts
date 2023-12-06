@@ -8,14 +8,13 @@ import type { DataEnvelope, DataListEnvelope } from "./myFetch";
 
 export interface User {
   id: number,
-  
   firstName: string,
   lastName: string,
   email: string,
   password?: string,
   role: "admin" | "user",
   token?: string,
-  image: string,
+  image: string
 }
 
 // reactive Users array

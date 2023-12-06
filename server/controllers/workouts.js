@@ -16,7 +16,6 @@ router
         }
     })
     
-
     .get('/search/:q', (req, res) => {
         const term = req.params.q;
         console.log({ term });
@@ -28,8 +27,6 @@ router
         const workout = req.params.workout;
         const list = model.getWorkoutById(workout);
         res.send(list);
-
-    
     })
 
     //updated to match users.js
@@ -59,7 +56,6 @@ router
         res.send(workouts);
     })
 
-  
     .delete('/', (req, res) => {
         const workout = req.body;
         model.deleteWorkout(workout);

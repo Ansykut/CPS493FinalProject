@@ -28,9 +28,4 @@ export type DataEnvelope<T> = {
 export type DataListEnvelope<T> = DataEnvelope<T[]> & {
     total: number,
 }
-/*  Asynchronous patterns in JavaScript
-    1. Callbacks
-    2. Pipelining
-    3. Promises
-    4. Async/Await
-*/
+

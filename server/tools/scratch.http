@@ -6,9 +6,13 @@ POST http://localhost:3000/api/v1/users/login
 Content-Type: application/json
 
 {
-    "email": "atuny0@sohu.com",
-    "password": "9uQFF1Lh"
+    "email": "ale.com",
+    "password": "88888888"
 }
+
+###
+POST http://localhost:3000/api/v1/users/seed
+
 ###
 POST http://localhost:3000/api/v1/users/register
 Content-Type: application/json
@@ -18,58 +22,11 @@ Content-Type: application/json
     "lastName": "Johnson",
     "maidenName": "Doe",
     "age": 29,
-    "gender": "male",
-    "email": "alex.johnson@example.com",
+
+    "email": "ale.com",
     "phone": "+1 555-0123",
     "username": "alexjohnson",
-    "password": "AlexPass123",
-    "birthDate": "1993-05-14",
-    "image": "https://example.com/image.png",
-    "bloodGroup": "O+",
-    "height": 175,
-    "weight": 70.5,
-    "eyeColor": "Blue",
-    "hair": {
-        "color": "Brown",
-        "type": "Straight"
-    },
-    "domain": "example.com",
-    "ip": "192.168.1.1",
-    "address": {
-        "address": "1234 Main Street",
-        "city": "Anytown",
-        "coordinates": {
-            "lat": 40.7128,
-            "lng": -74.0060
-        },
-        "postalCode": "12345",
-        "state": "NY"
-    },
-    "macAddress": "00:A0:C9:14:C8:29",
-    "university": "State University",
-    "bank": {
-        "cardExpire": "08/26",
-        "cardNumber": "1234567890123456",
-        "cardType": "Visa",
-        "currency": "USD",
-        "iban": "US12345678901234567890"
-    },
-    "company": {
-        "address": {
-            "address": "4321 Second Street",
-            "city": "Anothertown",
-            "coordinates": {
-                "lat": 37.7749,
-                "lng": -122.4194
-            },
-            "postalCode": "54321",
-            "state": "CA"
-        },
-        "department": "Development",
-        "name": "TechCorp",
-        "title": "Software Engineer"
-    },
-    "ein": "12-3456789",
-    "ssn": "123-45-6789",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+    "password": "88888888"
+   
+   
 }
