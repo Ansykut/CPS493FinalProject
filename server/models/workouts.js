@@ -74,6 +74,16 @@ async function getWorkouts(){
     const db = await getCollection();
     return db.find({}).toArray();
 }
+
+//getWorkoutsByUserId
+async function getWorkoutsByUserId(id){
+    const db = await getCollection();
+    console.log(await getWorkouts())
+    const arr = await db.find({ userId: new ObjectId(id) }).toArray();
+    console.log(arr)
+    return arr;
+}
+
 /**
  * @param {number} id - The user's ID.
  */
@@ -101,10 +111,11 @@ const defaultWorkout = {
 
 
 //direct rip from users.js
-async function addWorkout(newWorkout) {
+async function addWorkout(newWorkout, userId) {
     newWorkout = { ...defaultWorkout, ...newWorkout };
     const col = await getCollection();
-    const result = await col.insertOne(newWorkout);
+    // by userId
+    const result = await col.insertOne({ ...newWorkout, userId: new ObjectId(userId) });
     newWorkout._id = result.insertedId;
   
     return newWorkout;
@@ -136,5 +147,6 @@ module.exports = {
     addWorkout,
     deleteWorkout,
     seed,
-    deleteAllWorkouts
+    deleteAllWorkouts,
+    getWorkoutsByUserId,
 };

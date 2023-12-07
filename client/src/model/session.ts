@@ -21,7 +21,7 @@ const session = reactive({
 })
 export function createUser(user: User): Promise<DataEnvelope<User>> {
 
-  return api('users/', user, 'POST')
+  return api('/users/', user, 'POST')
 }
 export function api(url: string, data?: any, method?: string, headers?: any) {
   session.isLoading = true;
@@ -33,13 +33,7 @@ export function api(url: string, data?: any, method?: string, headers?: any) {
   }
 }
   return myFetch.api(url, data, method, headers)
-      .catch(err => {
-          console.error({err});
-          session.messages.push({
-              msg: err.message  ?? JSON.stringify(err),
-              type: "danger",
-          })
-      })
+  .catch(err=> showError(err))
       .finally(() => {
           session.isLoading = false;
       })
@@ -51,6 +45,7 @@ export function getSession(){
 }
 
 export function showError(err: any) {
+  debugger;
   console.error(err);
   session.messages.push({
     msg: err.message ?? err,
@@ -61,7 +56,7 @@ export function showError(err: any) {
 
 export async function loginWithServer(email: string, password: string): Promise<User | null> {
   try {
-    const response = await api('users/login', {email, password}, 'POST');
+    const response = await api('/users/login', {email, password}, 'POST');
     session.user = response.data.user;
 
     if(session.user) {
@@ -89,7 +84,7 @@ export function useLogin(email: string, password: string) {
     
 
   return async function() {
-   const response = await api('users/login', {email, password}, 'POST');
+   const response = await api('/users/login', {email, password}, 'POST');
 
    session.user = response.data.user;
    

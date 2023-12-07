@@ -3,10 +3,8 @@ import HomeView from '../views/HomeView.vue';
 import StatisticsView from '../views/StatisticsView.vue';
 import LoginView from '../views/LoginView.vue';
 import MyActivityView from '../views/MyActivityView.vue'
-import FriendActivityView from '../views/FriendActivityView.vue'
 import PeopleSearchView from '../views/PeopleSearchView.vue'
-import AdminView from '../views/AdminView.vue'
-import SignupView from '../views/SignupView.vue'
+import SignupView from '../views/SignUpView.vue'
 import { getSession } from '@/model/session';
 
 const router = createRouter({
@@ -42,22 +40,10 @@ const router = createRouter({
       component: MyActivityView,
       beforeEnter: requireLogin
     },
-    { // Adding the new route for FriendsActivityView
-      path: '/friends-activity',
-      name: 'friends-activity',
-      component: FriendActivityView,
-      beforeEnter: requireLogin
-    },
     { // Adding the new route for PeopleSearchView
       path: '/people-search',
       name: 'people-search',
       component: PeopleSearchView,
-      //beforeEnter: requireLogin
-    },
-    { // Adding the new route for AdminView
-      path: '/admin',
-      name: 'admin',
-      component: AdminView,
       //beforeEnter: requireLogin
     },
     { // Adding the new route for AdminView

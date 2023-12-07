@@ -17,7 +17,7 @@
     </div>
 
     <!-- Display Workouts -->
-<div v-if="workouts.length">
+<div v-if="workouts">
   <h2 class="title is-4 mt-5">My Workouts</h2>
   <div class="columns is-centered">
     <div class="column is-half">
@@ -28,7 +28,7 @@
           <span class="user-activity-bold">{{ username }} went {{ workout.type.toLowerCase() }} at {{ workout.location }}</span> <!-- Updated class name -->
           <span class="small">{{ daysAgoToDateString(workout.dateDaysAgo) }}</span>
         </div>
-            <button class="delete is-small is-pulled-right" @click="_removeWorkout(workout.id)"></button>
+            <!--<button class="delete is-small is-pulled-right" @click="_removeWorkout(workout.id)"></button>-->
             <div class="columns">
               <!-- Workout information column -->
               <div class="column is-8">
@@ -108,7 +108,7 @@
 
   
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { getSession } from '../model/session';
 import { getWorkoutsByUserId, type Workout, addWorkout, removeWorkout } from "@/model/workouts";
 
@@ -122,11 +122,15 @@ const session = getSession();
 const username = computed(() => {
   return session.user ? session.user.firstName + " " + session.user.lastName : '';
 });
-const workouts = ref<Workout[]>(getWorkoutsByUserId(session.user?.id ?? -1));
+const workouts = ref<Workout[]>();
 
-const _removeWorkout = (id:number) => {
+const _removeWorkout = async (id:number) => {
   removeWorkout(id)
-  workouts.value = getWorkoutsByUserId(session.user?.id ?? -1)
+  workouts.value = await getWorkoutsByUserId(session.user?._id ?? -1)
+};
+
+const _getWorkouts = async () => {
+  workouts.value = await getWorkoutsByUserId(session.user?._id ?? -1)
 };
 
 const isModalActive = ref(false);
@@ -165,20 +169,30 @@ function handlePhotoUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file) {
-    currentWorkout.value.photo = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      currentWorkout.value.photo = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 }
 
 async function saveWorkout() {
   currentWorkout.value.id = Date.now();
   try {
-    await addWorkout({ ...currentWorkout.value });
-    workouts.value = getWorkoutsByUserId(session.user?.id ?? -1);
+    await addWorkout({ ...currentWorkout.value }, session.user?._id ?? -1);
+    debugger;
+    workouts.value = await getWorkoutsByUserId(session.user?._id ?? -1);
   } catch (error) {
     console.error('Error adding workout:', error);
   }
   closeModal();
 }
+onMounted(() => {
+  console.log('MyActivityView mounted');
+  debugger;
+  _getWorkouts();
+});
 </script>
 
 <style scoped>

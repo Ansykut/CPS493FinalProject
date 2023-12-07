@@ -2,7 +2,6 @@
 import { defineComponent, ref } from 'vue'
 import SmallStatistic from '@/components/SmallStatistic.vue';
 import { getSession } from '../model/session'
-import { type User, getUsersFriendsIds, getUserById } from "@/model/users";
 import { getWorkoutsByUserId, type Workout, type stats} from "@/model/workouts";
 
 const session = getSession()
@@ -42,9 +41,37 @@ const workoutByWeekFilterFunc = (workout: Workout) => {
   return false;
 }
 
+const todayStats = ref<stats>({
+  distance: 0,
+  duration: 0,
+  avgpace: 0,
+  calories: 0,
+});
+
+const weekStats = ref<stats>({
+  distance: 0,
+  duration: 0,
+  avgpace: 0,
+  calories: 0,
+});
+
+const allStats = ref<stats>({
+  distance: 0,
+  duration: 0,
+  avgpace: 0,
+  calories: 0,
+});
+
+const updateStats = async () => {
+  todayStats.value = await getStats("today");
+  weekStats.value = await getStats("week");
+  allStats.value = await getStats("all");
+}
+updateStats();
+
 
 // distance duration avgpace, calories, (today, this week, all time)
-function getStats(dayFilterType:String): stats {
+async function getStats(dayFilterType:String): Promise<stats> {
   let todaysStats = {
     distance: 0,
     duration: 0,
@@ -52,9 +79,9 @@ function getStats(dayFilterType:String): stats {
     calories: 0,
   } as stats;
   // we need our workouts
-  const ourId = session.user?.id;
+  const ourId = session.user?._id;
   if(!ourId) return todaysStats;
-  const workouts = getWorkoutsByUserId(ourId) as Workout[];
+  const workouts = await getWorkoutsByUserId(ourId) as Workout[];
   let filteredWorkouts = [];
   if(dayFilterType == "today")
     filteredWorkouts = workouts.filter(workout => workout.dateDaysAgo == 0);
@@ -96,9 +123,9 @@ const isEmptyStat = (stat: stats) => {
       <div class="box is-small-hidden" />
     </div>
     <div class="column">
-      <SmallStatistic v-if="!isEmptyStat(getStats('today'))" typeOfDisplay="today" :stats="getStats('today')"/>
-      <SmallStatistic v-if="!isEmptyStat(getStats('week'))" typeOfDisplay="week" :stats="getStats('week')"/>
-      <SmallStatistic v-if="!isEmptyStat(getStats('all'))" typeOfDisplay="all" :stats="getStats('all')"/>
+      <SmallStatistic typeOfDisplay="today" :stats="todayStats"/>
+      <SmallStatistic  typeOfDisplay="week" :stats="weekStats"/>
+      <SmallStatistic  typeOfDisplay="all" :stats="allStats"/>
     </div>
     <div class="column is-one-quarter">
       <div class="box is-small-hidden" />

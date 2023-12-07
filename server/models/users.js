@@ -54,7 +54,6 @@
  * @property {string} userAgent
  */
 
-
 /**
  * @typedef {Object} HasId
  * @property {number} id
@@ -69,19 +68,19 @@
  */
 const data = require("../data/users.json");
 const { client, DB_NAME } = require("./mongo");
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 //const { use } = require("../controllers/products");
-const { ObjectId, connect } = require('./mongo');
+const { ObjectId, connect } = require("./mongo");
 
 const JWT_SECRET = process.env.JWT_SECERT;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
-console.log(JWT_SECRET, JWT_EXPIRES_IN)
+console.log(JWT_SECRET, JWT_EXPIRES_IN);
 
-const COLLECTION_NAME = 'users';
+const COLLECTION_NAME = "users";
 async function getCollection() {
-  console.log('getCollection', DB_NAME, COLLECTION_NAME)
-  const db = client.db(DB_NAME)//await connect();
+  console.log("getCollection", DB_NAME, COLLECTION_NAME);
+  const db = client.db(DB_NAME); //await connect();
   return db.collection(COLLECTION_NAME);
 }
 
@@ -91,6 +90,25 @@ async function getCollection() {
 async function getAll() {
   const col = await getCollection();
   return col.find({}).toArray();
+}
+
+async function add(user) {
+  if(await isEmailTaken(user.email)){
+    throw new Error("email already exists");
+  }
+  const col = await getCollection();
+  const result = await col.insertOne(user);
+  return result
+}
+
+/**
+ * @param {string} email - The email to check.
+ * @returns {Promise<boolean>} True if the email is taken, false otherwise.
+ */
+async function isEmailTaken(email) {
+  const col = await getCollection();
+  const user = await col.findOne({ email });
+  return user !== null;
 }
 
 /**
@@ -106,14 +124,16 @@ async function get(id) {
       x.username.toLowerCase().includes(query.toLowerCase())*/
 async function search(query) {
   const col = await getCollection();
-  const users = await col.find({
-    or: [
-      { firstName: { $regex: query, $options: 'i' } }, // i stands for ignore case
-      { lastName: { $regex: query, $options: 'i' } },
-      { email: { $regex: query, $options: 'i' } },
-      { username: { $regex: query, $options: 'i' } },
-    ],
-  }).toArray();
+  const users = await col
+    .find({
+      or: [
+        { firstName: { $regex: query, $options: "i" } }, // i stands for ignore case
+        { lastName: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { username: { $regex: query, $options: "i" } },
+      ],
+    })
+    .toArray();
 
   return users;
 }
@@ -122,15 +142,15 @@ async function search(query) {
  * @param {BaseUser} values - The user to create.
  * @returns {User} The created user.
  */
- async function create(values) {
-   const col = await getCollection();
-   const newItem = {
-     id: data.users.length + 1,
-     ...values,
-   };
-    const result = await col.insertOne(newItem);
-    return newItem;
-  }
+async function create(values) {
+  const col = await getCollection();
+  const newItem = {
+    id: data.users.length + 1,
+    ...values,
+  };
+  const result = await col.insertOne(newItem);
+  return newItem;
+}
 
 /**
  * @param {BaseUser} values - The user to register.
@@ -140,13 +160,13 @@ async function register(values) {
   // register is like create but with validation
   // and some extra logic
 
-  const exists = data.users.some(x => x.username === values.username);
+  const exists = data.users.some((x) => x.username === values.username);
   if (exists) {
-    throw new Error('Username already exists');
+    throw new Error("Username already exists");
   }
 
   if (values.password.length < 8) {
-    throw new Error('Password must be at least 8 characters');
+    throw new Error("Password must be at least 8 characters");
   }
 
   // TODO: Make sure user is created with least privileges
@@ -167,26 +187,23 @@ async function register(values) {
  * @returns { Promise< { user: {}, token: string}> } The created user.
  */
 async function login(email, password) {
-
   const col = await getCollection();
   const user = await col.findOne({ email: email });
   if (!user) {
     throw {
-      message: 'User not found',
-      status: 404
-    }
+      message: "User not found",
+      status: 404,
+    };
   }
-  if(user.password !== password){
+  if (user.password !== password) {
     throw {
-      message: 'Password is incorrect',
-      status: 400
-    }
+      message: "Password is incorrect",
+      status: 400,
+    };
   }
   const squeakyCleanUser = { ...user, password: undefined };
   const token = await generateJWT(squeakyCleanUser);
   return { user: squeakyCleanUser, token: token };
-
-
 }
 
 /**
@@ -195,10 +212,10 @@ async function login(email, password) {
  */
 async function update(newValues) {
   try {
-    const userCollection = await client.db('exerciseDB').collection('users');
+    const userCollection = await client.db("exerciseDB").collection("users");
     const existingUser = await userCollection.findOne({ id: newValues.id });
     if (!existingUser) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     const updatedUser = {
@@ -220,7 +237,7 @@ async function remove(id) {
     const userCollection = await client.db(DB_NAME).collection(COLLECTION_NAME);
     const result = await userCollection.deleteOne({ id: id });
     if (result.deletedCount === 0) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
   } catch (error) {
     throw error;
@@ -228,12 +245,10 @@ async function remove(id) {
 }
 
 async function generateJWT(user) {
-
   try {
     return await jwt.sign(user, JWT_SECRET);
   } catch (error) {
-    throw error
-
+    throw error;
   }
 }
 
@@ -246,7 +261,7 @@ function verifyJWT(token) {
         resolve(user);
       }
     });
-  })
+  });
 }
 
 async function seed() {
@@ -255,7 +270,17 @@ async function seed() {
   await col.insertMany(data.users);
 }
 
-
 module.exports = {
-  getAll, get, search, create, update, remove, login, register, generateJWT, verifyJWT, seed
+  getAll,
+  get,
+  search,
+  create,
+  update,
+  remove,
+  login,
+  register,
+  generateJWT,
+  verifyJWT,
+  seed,
+  add,
 };

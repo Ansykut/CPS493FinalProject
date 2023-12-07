@@ -22,7 +22,11 @@ router
         const list = model.searchWorkout(term);
         res.send(list);
     })
-
+    .get('/user/:user', async (req, res) => {
+        const user = req.params.user;
+        const list = await model.getWorkoutsByUserId(user);
+        res.send(list);
+    })
     .get('/:workout', (req, res) => {
         const workout = req.params.workout;
         const list = model.getWorkoutById(workout);
@@ -41,8 +45,8 @@ router
 
     .post('/', async (req, res) => {
         try {
-            const workout = req.body;
-            const addedWorkout = await model.addWorkout(workout);
+            const {userId, workout} = req.body;
+            const addedWorkout = await model.addWorkout(workout, userId);
             res.status(201).json(addedWorkout);
         } catch (error) {
             console.log(error);

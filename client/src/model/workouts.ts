@@ -52,13 +52,16 @@ export function sanitizeWorkoutData(): Workout[] {
 }
 
 export function getWorkouts(): Promise<Workout[]> {
-  return api('workouts');
+  return api('/workouts');
 }
 
-export async function addWorkout(workout: Workout) {
+export async function addWorkout(workout: Workout, userId: number) {
   try {
     // Assuming '/workouts' is your server's endpoint for adding a workout
-    await api('workouts', workout, 'POST');
+    await api('/workouts', {
+      workout,
+      userId
+    }, 'POST');
   } catch (error) {
     console.error('Error in adding workout:', error);
   }
@@ -71,12 +74,6 @@ export function removeWorkout(id: number) {
   Workouts.splice(index, 1);
 }
 
-export function getWorkoutsByUserId(userId: number): Workout[] {
-  
-  const workouts = Workouts.filter(workout => workout.id % userId === 0)
-  //console.log(workouts)
-  //return no more than 3 workouts
-  // shuffle the workouts
-  workouts.sort(() => Math.random() - 0.5);
-  return workouts.slice(0,6)
+export async function getWorkoutsByUserId(userId: number): Promise<Workout[]> {
+  return api('/workouts/user/' + userId);
 }

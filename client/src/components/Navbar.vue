@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue';
 import { RouterLink } from 'vue-router'
 import { getSession, loginWithServer, logout } from '../model/session'
-import { type User, Users } from '../model/users'
 
 const session = getSession()
 const isActive = ref(false);
@@ -37,18 +36,6 @@ const login = async (email: string, password: string) => {
           <span class="icon mr-2"><i class="fas fa-user"></i></span>
           My Activity
         </RouterLink>
-        <RouterLink class="navbar-item" to="/statistics">
-          <span class="icon mr-2"><i class="fas fa-chart-line"></i></span>
-          Statistics
-        </RouterLink>
-        <RouterLink class="navbar-item" to="/friends-activity">
-          <span class="icon mr-2"><i class="fas fa-users"></i></span>
-          Friends Activity
-        </RouterLink>
-        <RouterLink class="navbar-item" to="/people-search">
-          <span class="icon mr-2"><i class="fas fa-search"></i></span>
-          People Search
-        </RouterLink>
         <div v-if="isLoggedIn && session.user?.role == 'admin'" class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             <span class="icon mr-2"><i class="fas fa-cogs"></i></span>
@@ -64,9 +51,9 @@ const login = async (email: string, password: string) => {
         <div class="navbar-item">
           <div class="buttons">
             <a v-if="!isLoggedIn" class="button is-primary">
-              <strong>Sign up</strong>
-              <RouterLink class="navbar-item" to="/signup">signup</RouterLink>
-
+              <strong>
+              <RouterLink class="navbar-item" to="/signup">Sign Up</RouterLink>
+            </strong>
             </a>
             <span v-if="isLoggedIn" class="mr-3">
               <span class="icon mr-4">
@@ -74,16 +61,11 @@ const login = async (email: string, password: string) => {
               </span>
               {{ session.user?.firstName + " " + session.user?.lastName }}
             </span>
-            <div v-if="!isLoggedIn" class="navbar-item has-dropdown" :class="{ 'is-active': isDropdownActive }">
-              <a class="button is-light login-button" @click="isDropdownActive = !isDropdownActive">
-                Log in <span class="icon ml-2"><i class="fas fa-angle-down"></i></span>
-              </a>
-              <div class="navbar-dropdown">
-                <a class="navbar-item" v-for="user in Users" @click="login(user.email, user.password as string)">
-                  {{ user.firstName + " " + user.lastName  }}
-                </a> 
-              </div>
-            </div>
+            <a v-if="!isLoggedIn" class="button is-light">
+              <strong>
+              <RouterLink class="navbar-item" to="/login">Log in</RouterLink>
+            </strong>
+            </a>
             <a v-if="isLoggedIn" class="button is-light login-button"
               @click="logout">
               Log out
