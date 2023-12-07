@@ -12,7 +12,7 @@
     "client"
   ],
   "scripts": {
-    "build": "npm i -ws && npm run build -ws",
+    "build":  "npm i --production && cd client && npm i && npm run build",
     "start": "node server/index.js",
     "dev": "nodemon server/index.js --watch server"
   },
