@@ -16,6 +16,7 @@ const login = async (email: string, password: string) => {
 </script>
 
 <template>
+  
   <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <RouterLink class="navbar-item" to="/">
